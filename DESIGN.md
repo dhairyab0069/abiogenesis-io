@@ -1,7 +1,7 @@
 # Design: abiogenesis-io
 
 ## Purpose
-The project page for Abiogenesis, a small Rust simulation of how life could arise from non-living matter. The page is not a brochure with a picture: it is a live primordial soup you can touch (water and methane molecules, amino acid chains that mutate, recombine and degrade), with the app's six stages explained in small illustrations, a lineage tree drawn from the live soup's own event log, and a download section that points at the latest release. It should feel like looking into a tide pool: alive, a little strange, never busy.
+The project page for Abiogenesis, a small Rust simulation of how life could arise from non-living matter. The page is not a brochure with a picture: it is a live primordial soup you can touch (water and methane molecules, amino acid chains that mutate, recombine and degrade), with the app's features explained in small illustrations, a lineage tree drawn from the live soup's own event log, and a download section that points at the latest release. It should feel like looking into a tide pool: alive, a little strange, never busy.
 
 ## Theme choice and why
 A living, bioluminescent "primordial soup" theme: deep water, glowing beads, translucent membranes between sections, organic blob shapes, and colour taken from the app icon. Colour carries meaning: each amino acid is coloured by its chemistry class (hydrophobic green to blue, polar gold, basic magenta, acidic red). Dark is the original deep-water look; light is a pale sunlit tide pool, designed separately (the soup is drawn darker with ordinary blending, since a pale pool cannot glow by adding light).
@@ -35,20 +35,21 @@ Sound is on by default; the context is created and resumed at the first pointerd
 ## Interaction inventory
 * The soup: move to pull molecules in, tap to drop a chain (with a ripple when Effects are on), press and hold to stir a current, hover a chain to read its letters.
 * The instruments: temperature and pH sliders; Spark (lightning), Drop a chain, Plant METHINKS; a lab notebook in plain words.
-* Five feature illustrations (below), numbered Feature 1 to 5. The page shows features only: no Built/Planned chips and no roadmap.
+* Six feature illustrations (below), numbered Feature 1 to 6. The page shows features only: no Built/Planned chips and no roadmap. Feature 6 also has chapter buttons (real buttons, `aria-current` on the current one) that jump the lineage to a milestone and show that chapter's text.
 * The lineage tree: pick a chain, follow it as it mutates, click a node to re-root.
 * Downloads: platform detected from the user agent (both Mac cards on a Mac, since Apple Silicon and Intel cannot be told apart), first-launch notes, links to the latest release.
 * Dock (bottom right): Sound, Motion, Effects, Quiet everything, then the Light/Dark/Auto selector.
 
-## The stages (the page calls them Features 1 to 5)
+## The features (Features 1 to 6)
 1. Basic simulation: the soup above (built).
 2. Environment: wet and dry pools, day and night, protocells that keep chains in (built).
 3. Chemistry and emergence: lipids, nucleotides, RNA-like strands that copy themselves, catalysts, fitness (built).
 4. Visualization and metrics: proteins read off RNA strands by the genetic code, the Genes and Proteins screen (an animated scene of strands forming, copying and being translated), live charts and a protein lineage (built).
 5. Cells to complex life: cells formed from lipid bilayers that grow and divide, eukaryotes (engulfing, mitochondria, nucleus) and colonies with roles (built).
+6. Animals: from sea to land: an in-page illustration of a lineage swimming from the open sea through the shallows and tidal flats onto land, its organs fading in and fins stiffening into limbs, with its ancestors trailing behind it, beside nine short chapters of the real-history story (setting, problem, adaptation, result, and a note on the model) that step with the scene. The picture says once that it is an in-page illustration, not a screenshot. The chapters are written text, labelled a story and not data, with times only as "roughly". `assets/animals.js` is the DOM-free script of the lineage (organ curves, zones, chapters; tested in Node) and `assets/stage6.js` draws it. The scene is a loop of about a minute: Motion off draws one still frame partway through the story and leaves the chapter buttons working; Effects does not touch it (it is content, not decoration); a chapter change and a button pick play the existing `stage` and `pick` cues through `A.sound`, so Sound and Quiet decide whether they are heard; both themes have their own sky, water and ground colours.
 
-Roadmap (repo docs only, not on the page): Stage 6, the scenario lab (natural or forced selection, a small Rust language model as a learned fitness prior). Its page card and toy population were removed because the feature is not built; see the project roadmap in the app repo.
-The Stage 4 and 5 pictures say they are an illustration of how it works in the app. The download section always points at the latest release.
+The roadmap lives in the app repo only, not on the page.
+The Feature 4, 5 and 6 pictures say they are an illustration of how it works in the app. The download section always points at the latest release.
 
 ## Accessibility notes
 * The four controls are real buttons with `aria-pressed` and an `aria-label` that states the state ("Sound on"), a title tooltip, a 44px target and a visible focus ring. State is shown by fill and by the glyph (slash, pause bars), not colour alone. A polite live region announces changes.
@@ -65,8 +66,8 @@ The Stage 4 and 5 pictures say they are an illustration of how it works in the a
 * The check script's token heuristic wants a dark `prefers-color-scheme` fallback; this page defaults to dark in `:root` and uses a light media rule instead, which behaves the same.
 
 ## How to extend
-* New stage: add a card in `index.html`, an illustration in `assets/stages.js` (register it with `make`), and its note to the stage sounds. Update this file.
+* New feature: add a card in `index.html`, an illustration in `assets/stages.js` (register it with `make`; Feature 6 has its own file because it also carries text), and its note to the stage sounds. Update this file.
 * New sound: add a voice in `assets/sound.js` and call `A.sound.play('name')`; it is silent when Sound is off.
 * New decorative effect: guard it with `A.state.fx` (JS) or `html[data-fx="off"]` (CSS). New motion must be driven by the loop or CSS and stop under `A.state.calm`.
 * New colours: add them to both palettes (`PALS` in `assets/app.js`) and both token blocks in `assets/style.css`.
-* After a change run `node tests/chem.test.js`, the skill's `check_site.js`, and look at screenshots in light and dark at 1200px and 390px.
+* After a change run `node tests/chem.test.js` and `node tests/animals.test.js`, the skill's `check_site.js`, and look at screenshots in light and dark at 1200px and 390px.

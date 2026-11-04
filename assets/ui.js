@@ -167,6 +167,7 @@
     document.querySelectorAll('[data-hud]').forEach((e) => (hud[e.dataset.hud] = e));
     const view = A.makeSoupView($('soup'), hud);
     const stages = A.makeStages({ s1: $('s1'), s2: $('s2'), s3: $('s3'), s4: $('s4'), s4text: $('s4-text'), s5: $('s5') });
+    A.makeStage6({ cv: $('s6'), list: $('s6-chapters'), story: $('s6-story') });
     A.makeLineage({ strip: $('lin-strip'), svg: $('lin-svg'), detail: $('lin-detail'), live: $('lin-live'), follow: $('lin-follow'), stats: $('lin-stats') });
     controls(view, stages);
     A.initFx();

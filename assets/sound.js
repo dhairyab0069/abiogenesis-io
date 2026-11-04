@@ -158,7 +158,7 @@
       const io = new IntersectionObserver((en) => en.forEach((x) => {
         if (x.isIntersecting && !quiet('stage', 900)) play('stage', +x.target.id.slice(1));
       }), { threshold: 0.6 });
-      ['s1', 's2', 's3', 's4', 's5'].forEach((id) => io.observe($(id)));
+      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach((id) => io.observe($(id)));
     }
   }
 

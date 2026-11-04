@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abiogenesis: a primordial soup you can watch</title>
-<meta name="description" content="Abiogenesis is a small Rust simulation of how life could arise from non-living matter: molecules drifting in a primordial soup, amino acid chains forming, mutating and recombining.">
+<meta name="description" content="Abiogenesis is a small Rust simulation of how life could arise from non-living matter: molecules drifting in a primordial soup, amino acid chains forming, mutating and recombining, then cells, colonies and animals leaving the sea.">
 <meta name="theme-color" content="#020b10">
 <link rel="canonical" href="https://dhairyab0069.github.io/abiogenesis-io/">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
@@ -46,6 +46,8 @@
 <script defer src="assets/soup.js"></script>
 <script defer src="assets/soupview.js"></script>
 <script defer src="assets/stages.js"></script>
+<script defer src="assets/animals.js"></script>
+<script defer src="assets/stage6.js"></script>
 <script defer src="assets/lineage.js"></script>
 <script defer src="assets/fx.js"></script>
 <script defer src="assets/sound.js"></script>
@@ -78,7 +80,7 @@
 <header class="bar">
   <a class="brand" href="#top" aria-label="Abiogenesis, back to top"><img src="assets/favicon-64.png" width="28" height="28" alt=""><span>Abiogenesis</span></a>
   <nav aria-label="Sections">
-    <a href="#soup-tray">Soup</a><a href="#features">Features</a><a href="#how">How</a><a href="#download">Download</a>
+    <a href="#soup-tray">Soup</a><a href="#features">Features</a><a href="#animals">Animals</a><a href="#how">How</a><a href="#download">Download</a>
   </nav>
 </header>
 
@@ -146,7 +148,7 @@
 <section class="sec" id="features" aria-labelledby="h-features">
   <svg class="membrane" aria-hidden="true" viewBox="0 0 1200 120" preserveAspectRatio="none"><path/></svg>
   <div class="wrap">
-    <h2 id="h-features" class="reveal">What it simulates, from soup to cells</h2>
+    <h2 id="h-features" class="reveal">What it simulates, from soup to animals</h2>
     <p class="sublede reveal">The pictures below are small in-page illustrations of how each feature works in the app, not screenshots.</p>
 
     <div class="journey" id="journey">
@@ -216,6 +218,28 @@
               <canvas id="s5" aria-hidden="true"></canvas>
               <figcaption>An illustration of how it works in the app, in three scenes that loop: a cell grows and divides, a cell engulfs a smaller one and grows a nucleus, and a cluster of cells splits into specialists.</figcaption>
             </figure>
+          </article>
+        </li>
+
+        <li class="stage wide" data-stage="6" id="animals">
+          <i class="knot" aria-hidden="true"></i>
+          <article class="card blob reveal wipe">
+            <header><span class="num">Feature 6</span></header>
+            <h3>Animals: from sea to land</h3>
+            <p>Colonies of cells go on to become animals. A body is a radial or bilateral plan plus a handful of organ levels: mouth and gut, a nerve cord and brain, eyes, muscle, fins, a backbone, gills, jaws, lungs, limbs and a sealed skin. Organs build on the ones they come from, children are their parents with a few random changes, and the shore picks the winners: fins and gills in the water, a lung-like organ in stale shallows, limbs, lungs and a waterproof skin on land. Nothing steers the lineage toward land. The app shows this beside the real-history story, and a what-if window turns the oxygen, the steepness of the shore and the hunger of predators to see how the organ set changes (a hypothetical world, not a prediction).</p>
+            <div class="s6">
+              <figure class="fig">
+                <canvas id="s6" role="img" aria-label="An animal lineage swimming from the open sea through the shallows and tidal flats onto land, growing organs as it goes"></canvas>
+                <figcaption>An in-page illustration of how it works in the app, not a screenshot: one scripted lineage swims out of the sea, its organs fading in, fins stiffening into limbs, while its ancestors trail behind it.</figcaption>
+              </figure>
+              <div class="s6-side">
+                <h4 class="s6-h">The real story, roughly</h4>
+                <p class="s6-note">Written chapters that follow the lineage, not data: times are rough and the real history is messier. Pick a chapter to jump to it.</p>
+                <ol class="s6-chapters" id="s6-chapters" aria-label="Chapters"></ol>
+                <div class="s6-story" id="s6-story" aria-live="off"></div>
+                <noscript><p>The nine chapters: colonies in the sea; a front, a back and a gut; eyes and a nerve cord; a stiffening rod; jaws; fins that can push; breathing air; leaving the water; the first land animals.</p></noscript>
+              </div>
+            </div>
           </article>
         </li>
 
@@ -339,7 +363,7 @@
 <noscript>
   <div class="noscript">
     <h2>Abiogenesis</h2>
-    <p>A small Rust simulation of how life could arise from non-living matter: water and methane molecules drift in a primordial soup, amino acid chains form, mutate and recombine, and grow into cells, eukaryotes and colonies. Features: the soup, an environment with protocells, chemistry with self-copying strands, proteins read off RNA, and cells, eukaryotes and colonies.</p>
+    <p>A small Rust simulation of how life could arise from non-living matter: water and methane molecules drift in a primordial soup, amino acid chains form, mutate and recombine, and grow into cells, eukaryotes, colonies and animals that leave the sea. Features: the soup, an environment with protocells, chemistry with self-copying strands, proteins read off RNA, cells, eukaryotes and colonies, and animals from sea to land, told beside the real history.</p>
     <p>This page draws a live animated soup with JavaScript, which is switched off here. The app itself needs nothing else.</p>
     <p><a href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download</a> (macOS, Windows, Linux) &middot; <a href="https://github.com/dhairyab0069/abiogenesis">Repository</a> &middot; <a href="https://github.com/dhairyab0069/abiogenesis#readme">README</a></p>
   </div>
