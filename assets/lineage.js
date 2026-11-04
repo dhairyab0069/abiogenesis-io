@@ -83,26 +83,28 @@
 
     /* ----- the tree ----- */
     function drawTree() {
-      const log = A.soup.log, res = log.ancestors(sel, 7, 36), nodes = res.nodes;
+      const log = A.soup.log, res = log.ancestors(sel, 9, 40), nodes = res.nodes;
       if (!nodes.length) { svg.innerHTML = '<text x="20" y="40" class="lt">No recorded history for this chain.</text>'; return; }
       const depths = Array.from(new Set(nodes.map((n) => n.depth))).sort((a, b) => a - b);
       const col = {}; depths.forEach((d, i) => (col[d] = i));
       const byId = {}; nodes.forEach((n) => (byId[n.id] = n));
-      const layers = depths.map((d) => nodes.filter((n) => n.depth === d));
-      const gap = 46, H = Math.max(190, Math.max.apply(null, layers.map((l) => l.length)) * gap + 40), W = Math.max(380, depths.length * 96 + 40);
+      /* Lanes (rows): the selected chain and its first-parent line share lane 0;
+       * every extra parent of a recombination starts a new lane (+1, -1, +2, ...),
+       * so branches never overlap. Columns are the distinct generation numbers. */
+      const lane = {}; lane[sel] = 0;
+      let nextLane = 1;
+      nodes.forEach((n) => n.parents.forEach((p, i) => {
+        if (!byId[p] || lane[p] !== undefined) return;
+        if (i === 0) lane[p] = lane[n.id] || 0;
+        else { lane[p] = (nextLane % 2 ? 1 : -1) * Math.ceil(nextLane / 2); nextLane++; }
+      }));
+      const ls = nodes.map((n) => lane[n.id] || 0), minL = Math.min.apply(null, ls), maxL = Math.max.apply(null, ls);
+      const gap = 50, H = Math.max(150, (maxL - minL) * gap + 90), W = Math.max(380, depths.length * 110 + 40);
       const pos = {};
-      for (let li = layers.length - 1; li >= 0; li--) { // right to left: place parents near their children
-        const L = layers[li];
-        const want = L.map((n) => {
-          const kids = nodes.filter((k) => k.parents.indexOf(n.id) !== -1 && pos[k.id]);
-          return { n, y: kids.length ? kids.reduce((s, k) => s + pos[k.id].y, 0) / kids.length : H / 2 };
-        }).sort((a, b) => a.y - b.y);
-        let prev = -1e9;
-        want.forEach((w) => { w.y = Math.max(w.y, prev + gap * 0.9); prev = w.y; });
-        const over = Math.max(0, prev - (H - 28)), shift = Math.min(over, want[0].y - 28);
-        const x = depths.length > 1 ? 36 + li * ((W - 72) / (depths.length - 1)) : W / 2;
-        want.forEach((w) => (pos[w.n.id] = { x, y: w.y - shift }));
-      }
+      nodes.forEach((n) => {
+        const x = depths.length > 1 ? 40 + col[n.depth] * ((W - 80) / (depths.length - 1)) : W / 2;
+        pos[n.id] = { x, y: 34 + ((lane[n.id] || 0) - minL) * gap };
+      });
       let out = '';
       nodes.forEach((n) => n.parents.forEach((p) => {
         const a = pos[p], b = pos[n.id];

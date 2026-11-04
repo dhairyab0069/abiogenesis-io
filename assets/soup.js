@@ -21,7 +21,7 @@
 (function () {
   'use strict';
   const A = window.Abio, C = A.chem;
-  const MAX_CHAINS = 56, BURST_MAX = 64, N_WATER = 34, N_METH = 22, SPACING = 7.5;
+  const MAX_CHAINS = 56, BURST_MAX = 64, N_WATER = 34, N_METH = 22, SPACING = 9.5;
   const PLANT_WORD = C.TARGET;
 
   class Soup {

@@ -126,9 +126,9 @@
         for (let i = 0; i <= 40; i++) { const u = i / 20 - 1; ctx.lineTo(w * (0.5 + u * 0.5), bowl(u, h)); }
         ctx.lineWidth = 3; ctx.strokeStyle = hsl(190, 40, 40, 0.5); ctx.stroke();
         ctx.save(); // water, clipped to the basin
-        ctx.beginPath(); ctx.moveTo(0, h);
+        ctx.beginPath(); ctx.moveTo(0, 0); // the cavity: everything above the bowl curve
         for (let i = 0; i <= 40; i++) { const u = i / 20 - 1; ctx.lineTo(w * (0.5 + u * 0.5), bowl(u, h)); }
-        ctx.lineTo(w, h); ctx.closePath(); ctx.clip();
+        ctx.lineTo(w, 0); ctx.closePath(); ctx.clip();
         const wg = ctx.createLinearGradient(0, ys, 0, h);
         wg.addColorStop(0, hsl(188, 80, 50, 0.38)); wg.addColorStop(1, hsl(200, 80, 30, 0.6));
         ctx.fillStyle = wg; ctx.beginPath(); ctx.moveTo(0, h);
@@ -223,8 +223,8 @@
       { k: 'len', title: 'complexity (mean chain length)', hue: 118, f: (v) => v.toFixed(1) },
       { k: 'uniq', title: 'distinct sequences', hue: 320, f: (v) => String(Math.round(v)) },
     ];
-    const rng = defs.map(() => [0, 1]);
-    let lastTxt = 0;
+    const rng = defs.map(() => null); // smoothed [lo, hi] per chart, snapped on first draw
+    let lastTxt = -1e9;
     return make(cv, {
       step() {},
       draw(ctx, w, h) {
@@ -246,6 +246,7 @@
           if (data.length < 2) continue;
           let lo = Math.min.apply(null, data), hi = Math.max.apply(null, data);
           if (hi - lo < 0.5) { const m = (hi + lo) / 2; lo = m - 0.25; hi = m + 0.25; }
+          if (!rng[i]) rng[i] = [lo, hi];
           rng[i][0] += (lo - rng[i][0]) * 0.1; rng[i][1] += (hi - rng[i][1]) * 0.1;
           const top = y0 + 20, bh = ph - 24;
           const py = (v) => top + bh - A.clamp((v - rng[i][0]) / (rng[i][1] - rng[i][0]), 0, 1) * bh;
@@ -275,7 +276,7 @@
   function stage5(cv, readout) {
     const N = 220, B = 36;
     let pop = Array.from({ length: N }, () => A.clamp(0.5 + A.gauss() * 0.1, 0, 1));
-    let mode = 'natural', opt = 0.5, goal = 0.82, wait = 0.5, gen = 0, dispOpt = 0.5, lastTxt = 0;
+    let mode = 'natural', opt = 0.5, goal = 0.82, wait = 0.5, gen = 0, dispOpt = 0.5, lastTxt = -1e9;
     const shown = new Float32Array(B);
     const stats = () => { const m = pop.reduce((a, b) => a + b, 0) / N; return { m, sd: Math.sqrt(pop.reduce((a, b) => a + (b - m) * (b - m), 0) / N) }; };
     function generation() {
@@ -311,7 +312,7 @@
         ctx.setLineDash([5, 5]); ctx.strokeStyle = mode === 'forced' ? hsl(46, 95, 62, 0.95) : hsl(160, 90, 65, 0.8); ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(ox, 8); ctx.lineTo(ox, base + 4); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle = 'rgba(190,240,255,0.78)'; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
-        ctx.fillText(mode === 'natural' ? 'natural: the environment drifts and shocks, the population follows' : 'forced: you pick the target, selection is hard', 12, h - 8);
+        ctx.fillText(mode === 'natural' ? 'natural: a drifting world, the population follows' : 'forced: your target, hard selection', 12, h - 8);
         const now = performance.now();
         if (readout && now - lastTxt > 800) {
           lastTxt = now; const st = stats();

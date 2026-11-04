@@ -25,7 +25,7 @@
     let g = A.fitCanvas(cv);
     const soup = new A.Soup(g.w, g.h);
     A.soup = soup;
-    for (let i = 0; i < 400; i++) soup.step(0.05); // pre-warm so the first frame has a history
+    for (let i = 0; i < (A.prewarm || 400); i++) soup.step(0.05); // pre-warm (20 s of soup time) so the first frame has a history
     const ptr = soup.ptr;
     const sprites = {};
     Object.keys(A.letterHue).forEach((c) => { sprites[c] = A.glowSprite(A.letterHue[c], 85, 60); });
@@ -117,7 +117,7 @@
           const lx = c.pts[2 * i] * sc, ly = c.pts[2 * i + 1] * sc;
           const x = c.x + lx * cs - ly * sn, y = c.y + lx * sn + ly * cs;
           c.wp[2 * i] = x; c.wp[2 * i + 1] = y;
-          let r = 3.6 * sc;
+          let r = 3.9 * sc;
           if (ptr.on) {
             const d = Math.hypot(x - ptr.x, y - ptr.y);
             if (d < LENS) r *= 1 + 0.9 * (1 - d / LENS);

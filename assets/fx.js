@@ -86,7 +86,7 @@
     const svg = j.querySelector('svg.tendril'), p0 = svg.querySelector('.t0'), p1 = svg.querySelector('.t1');
     const stages = Array.from(j.querySelectorAll('.stage'));
     function build() {
-      const W = j.clientWidth, H = j.clientHeight, wide = W > 820, cx = wide ? W / 2 : 20, amp = wide ? 34 : 7;
+      const W = j.clientWidth, H = j.clientHeight, wide = W > 820, cx = wide ? W / 2 : 20, amp = wide ? 70 : 8;
       svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
       const pts = [[cx, 0]];
       stages.forEach((s, i) => {
@@ -94,7 +94,7 @@
         if (i > 0) { const py = pts[pts.length - 1][1]; pts.push([cx + A.rnd(-amp, amp), (py + y) / 2]); }
         pts.push([cx, y]);
       });
-      pts.push([cx + A.rnd(-amp, amp), H - 20], [cx, H]);
+      pts.push([cx, H]);
       const d = smooth(pts);
       p0.setAttribute('d', d); p1.setAttribute('d', d);
     }
