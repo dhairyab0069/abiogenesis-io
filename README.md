@@ -28,7 +28,7 @@ assets/chem.js       DOM-free rules (mutation, crossover, METHINKS watch, event 
 assets/app.js        shared runtime: one animation loop, state, colours, helpers
 assets/soup.js       the soup simulation
 assets/soupview.js   canvas drawing and pointer interaction for the soup
-assets/stages.js     the six stage illustrations (4 and 5 are built in the app, shipping in the next release)
+assets/stages.js     the six stage illustrations
 assets/lineage.js    the interactive lineage tree
 assets/fx.js         depth layers, plankton, membranes between sections, stage tendril
 assets/sound.js      synthesized sound effects (Web Audio, no files), on by default
@@ -68,9 +68,7 @@ state ("Sound on") and a 44px target.
 
 ## Stages
 
-Stages 1 to 3 are in the current release (0.3.0), which is what the download section points at. Stages 4 (proteins read off RNA
-strands, the Genes and Proteins screen, charts and lineage) and 5 (cells, eukaryotes, colonies) are built and merged and are
-shown as such, "in the next release". Stage 6 is still planned. The design is documented in `DESIGN.md`.
+Stages 1 to 5 are built and shown as "Built"; Stage 6 is still planned. The download section points at the latest release. The design is documented in `DESIGN.md`.
 
 ## Deploy
 

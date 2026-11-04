@@ -40,14 +40,14 @@ Sound is on by default; the context is created and resumed at the first pointerd
 * Downloads: platform detected from the user agent (both Mac cards on a Mac, since Apple Silicon and Intel cannot be told apart), first-launch notes, links to the latest release.
 * Dock (bottom right): Sound, Motion, Effects, Quiet everything, then the Light/Dark/Auto selector.
 
-## The stages as released
-1. Basic simulation: the soup above (done, in 0.3.0).
-2. Environment: wet and dry pools, day and night, protocells that keep chains in (done, in 0.3.0).
-3. Chemistry and emergence: lipids, nucleotides, RNA-like strands that copy themselves, catalysts, fitness (done, in 0.3.0).
-4. Visualization and metrics: proteins read off RNA strands by the genetic code, the Genes and Proteins screen (an animated scene of strands forming, copying and being translated), live charts and a protein lineage (built and merged; ships in the next release).
-5. Cells to complex life: cells formed from lipid bilayers that grow and divide, eukaryotes (engulfing, mitochondria, nucleus) and colonies with roles (built and merged; ships in the next release).
+## The stages
+1. Basic simulation: the soup above (built).
+2. Environment: wet and dry pools, day and night, protocells that keep chains in (built).
+3. Chemistry and emergence: lipids, nucleotides, RNA-like strands that copy themselves, catalysts, fitness (built).
+4. Visualization and metrics: proteins read off RNA strands by the genetic code, the Genes and Proteins screen (an animated scene of strands forming, copying and being translated), live charts and a protein lineage (built).
+5. Cells to complex life: cells formed from lipid bilayers that grow and divide, eukaryotes (engulfing, mitochondria, nucleus) and colonies with roles (built).
 6. Scenario lab: planned. Its picture is a toy population, labelled as such.
-The Stage 4 and 5 pictures say they are an illustration of how it works in the app. The download section always points at the latest release (0.3.0 today).
+The Stage 4 and 5 pictures say they are an illustration of how it works in the app. The download section always points at the latest release.
 
 ## Accessibility notes
 * The four controls are real buttons with `aria-pressed` and an `aria-label` that states the state ("Sound on"), a title tooltip, a 44px target and a visible focus ring. State is shown by fill and by the glyph (slash, pause bars), not colour alone. A polite live region announces changes.
