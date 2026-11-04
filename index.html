@@ -116,8 +116,8 @@
 <section class="sec" id="stages" aria-labelledby="h-stages">
   <svg class="membrane" aria-hidden="true" viewBox="0 0 1200 120" preserveAspectRatio="none"><path/></svg>
   <div class="wrap">
-    <h2 id="h-stages" class="reveal">Five stages, from soup to scenario</h2>
-    <p class="sublede reveal">Abiogenesis is built in stages. Stage 1 is done and is what you can download today. The other four are the roadmap, and the pictures below are illustrations of what each is meant to show, not screenshots.</p>
+    <h2 id="h-stages" class="reveal">Six stages, from soup to scenario</h2>
+    <p class="sublede reveal">Abiogenesis is built in stages. Stage 1 is done and is what you can download today. The other five are the roadmap, and the pictures below are illustrations of what each is meant to show, not screenshots.</p>
 
     <div class="journey" id="journey">
       <svg class="tendril" aria-hidden="true"><path class="t0" pathLength="1"/><path class="t1" pathLength="1"/></svg>
@@ -180,22 +180,35 @@
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
             <header><span class="num">Stage 5</span><span class="chip plan">Planned</span></header>
+            <h3>Cells to complex life</h3>
+            <p>From droplets to organisms. Protocells that grow and divide, then eukaryotes (one cell swallows another, which becomes the mitochondrion, and the DNA gets its own envelope, the nucleus), then cells that stay together and specialize into multicellular life.</p>
+            <figure class="fig">
+              <canvas id="s5" aria-hidden="true"></canvas>
+              <figcaption>Illustration of a planned feature, in three scenes that loop: a protocell grows and divides, a cell engulfs a smaller one and grows a nucleus, and a cluster of cells splits into specialists.</figcaption>
+            </figure>
+          </article>
+        </li>
+
+        <li class="stage" data-stage="6">
+          <i class="knot" aria-hidden="true"></i>
+          <article class="card blob reveal wipe">
+            <header><span class="num">Stage 6</span><span class="chip plan">Planned</span></header>
             <h3>Scenario lab</h3>
             <p>Build a scenario, choose natural or forced selection, and watch populations evolve over time. A small language model trained on protein sequences, written from scratch in Rust, is planned to supply a learned fitness and mutation prior.</p>
             <figure class="fig">
-              <canvas id="s5" aria-hidden="true"></canvas>
+              <canvas id="s6" aria-hidden="true"></canvas>
               <figcaption>A toy population: each bar counts individuals with that trait value. Toggle the pressure, and click the field to move the target (forced) or shock the world (natural). The transformer fitness model is not part of this toy.</figcaption>
             </figure>
             <div class="seg" role="group" aria-label="Selection pressure">
               <button type="button" id="sel-natural" aria-pressed="true">Natural selection</button>
               <button type="button" id="sel-forced" aria-pressed="false">Forced selection</button>
             </div>
-            <p class="readout" id="s5-text">Generation 0.</p>
+            <p class="readout" id="s6-text">Generation 0.</p>
           </article>
         </li>
       </ol>
     </div>
-    <p class="tiny reveal">Status as in the project <a href="https://github.com/dhairyab0069/abiogenesis#roadmap">roadmap</a>. Stages 2 to 4 stay deliberately simple: their job is to show how it works.</p>
+    <p class="tiny reveal">Status as in the project <a href="https://github.com/dhairyab0069/abiogenesis#roadmap">roadmap</a>. Stages 2 to 5 stay deliberately simple: their job is to show how it works.</p>
   </div>
 </section>
 

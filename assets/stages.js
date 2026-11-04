@@ -5,8 +5,10 @@
  *   2  a pool that dries and refills at irregular intervals, chains concentrate
  *   3  lipids drifting, then self-assembling into a vesicle around molecules
  *   4  live charts fed by the hero soup's history (a preview of the metrics)
- *   5  a population under natural or forced selection (the visitor toggles it)
- * Stages 2 to 5 are illustrations of PLANNED features, not app screenshots.
+ *   5  protocells divide, one swallows another (mitochondrion) and grows a nucleus,
+ *      then cells stay together and specialize (a loop of three scenes)
+ *   6  a population under natural or forced selection (the visitor toggles it)
+ * Stages 2 to 6 are illustrations of PLANNED features, not app screenshots.
  * Each factory builds its state, pre-warms it (so reduced-motion gets a
  * meaningful still), and registers a ticker with the shared loop.
  */
@@ -272,8 +274,150 @@
     }, 1);
   }
 
-  /* ---------- Stage 5: natural vs forced selection ---------- */
-  function stage5(cv, readout) {
+  /* ---------- Stage 5: protocells, eukaryotes, multicellular life ---------- */
+  function stage5(cv) {
+    const STEPS = ['protocells', 'eukaryotes', 'multicellular'];
+    let phase = 0, u = 0, t = 0, dur = 8, alpha = 0, cells = [], divs = [], extra = 0;
+    const mk = (x, y, r, o) => Object.assign({ x, y, r, rt: r, vx: 0, vy: 0, p: 1, hue: 320, kind: 'proto', nuc: 0, mito: 0, mitoP: 0, spec: 0, to: 188, ph: A.rnd(0, TAU),
+      mols: Array.from({ length: 5 }, () => ({ a: A.rnd(0, TAU), d: A.rnd(0.15, 0.6), hue: Math.random() < 0.5 ? 168 : 46, sp: A.rnd(0.3, 0.9) })) }, o);
+    const lerp = (a, b, k) => a + (b - a) * k;
+
+    function begin(w, h) { // set up the scene for `phase`; u counts seconds since then
+      const m = Math.min(w, h), cx = w / 2, cy = h / 2 - 6;
+      u = 0; cells = []; extra = 0;
+      if (phase === 0) {
+        dur = A.rnd(8.5, 10.5); divs = [A.rnd(2.2, 3), A.rnd(4.6, 5.6)];
+        cells = [mk(cx, cy, m * 0.05, { rt: m * 0.15, p: 0.3 })];
+      } else if (phase === 1) {
+        dur = A.rnd(8, 9.5);
+        cells = [mk(cx - m * 0.12, cy, m * 0.22, { kind: 'pro', hue: 160 }), mk(w * 0.9, cy - m * 0.2, m * 0.075, { kind: 'pro', hue: 28 })];
+      } else {
+        dur = A.rnd(10.5, 12); divs = [A.rnd(1.3, 1.8), A.rnd(3, 3.6), A.rnd(4.6, 5.2)];
+        cells = [mk(cx, cy, m * 0.15, { kind: 'euk', hue: 160, nuc: 1, mito: 1, mitoP: 1, rt: m * 0.15 })];
+      }
+    }
+    function divide(m, shrink) {
+      const out = [];
+      cells.forEach((c) => {
+        const a = A.rnd(0, TAU), k = c.r * 0.55;
+        c.r *= 0.78; c.rt = c.rt * shrink;
+        const s = mk(c.x + Math.cos(a) * k, c.y + Math.sin(a) * k, c.r, { kind: c.kind, hue: c.hue, nuc: c.nuc, mito: c.mito, mitoP: c.mitoP, rt: c.rt });
+        c.x -= Math.cos(a) * k; c.y -= Math.sin(a) * k;
+        out.push(s);
+      });
+      cells = cells.concat(out);
+    }
+    function settle(dt, w, h, gap, pull) { // soft repulsion between cells, a pull toward the middle
+      const cx = w / 2, cy = h / 2 - 6;
+      for (let i = 0; i < cells.length; i++) {
+        const a = cells[i];
+        for (let j = i + 1; j < cells.length; j++) {
+          const b = cells[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.01, min = (a.r + b.r) * gap;
+          if (d < min) { const f = (min - d) * 6 * dt / d; a.vx -= dx * f; a.vy -= dy * f; b.vx += dx * f; b.vy += dy * f; }
+        }
+        a.vx += (cx - a.x) * pull * dt + A.gauss() * 0.5; a.vy += (cy - a.y) * pull * dt + A.gauss() * 0.5;
+      }
+      cells.forEach((c) => { c.vx *= 0.9; c.vy *= 0.9; c.x += c.vx * dt * 6; c.y += c.vy * dt * 6; });
+    }
+
+    function step(dt, w, h) {
+      const m = Math.min(w, h);
+      if (!cells.length) begin(w, h);
+      t += dt; u += dt;
+      alpha = u < 0.7 ? u / 0.7 : u > dur - 0.7 ? Math.max(0, (dur - u) / 0.7) : 1;
+      if (u >= dur) { phase = (phase + 1) % 3; begin(w, h); return; }
+      cells.forEach((c) => { c.p = Math.min(1, c.p + dt * 1.2); c.r += (c.rt - c.r) * Math.min(1, dt * 1.4); });
+      if (phase === 0) {
+        if (divs.length && u > divs[0]) { divs.shift(); divide(m, cells.length >= 2 ? 0.82 : 1); }
+        settle(dt, w, h, 1.2, 0.25);
+      } else if (phase === 1) {
+        const B = cells[0], S = cells[1];
+        if (S) {
+          const ang = Math.atan2(S.y - B.y, S.x - B.x);
+          if (u < 2.2) { // drifts up to the big cell
+            const tx = B.x + Math.cos(ang) * (B.r + S.r * 0.9), ty = B.y + Math.sin(ang) * (B.r + S.r * 0.9);
+            S.x += (tx - S.x) * Math.min(1, dt * 1.1); S.y += (ty - S.y) * Math.min(1, dt * 1.1);
+          } else { // swallowed: slides inside and shrinks into a mitochondrion
+            const e = Math.min(1, (u - 2.2) / 1.6), ix = B.x + B.r * 0.42, iy = B.y + B.r * 0.28;
+            S.x = lerp(S.x, ix, Math.min(1, dt * 2.2)); S.y = lerp(S.y, iy, Math.min(1, dt * 2.2));
+            S.rt = lerp(m * 0.075, m * 0.03, e);
+            if (e >= 1) { B.mito = 1; B.mitoP = 0.01; cells.pop(); }
+          }
+        }
+        if (B.mito) B.mitoP = Math.min(1, B.mitoP + dt * 1.5);
+        if (u > 3.8 && u < 5.8) B.nuc = Math.min(1, (u - 3.8) / 1.8);
+        if (u >= 5.8) { B.nuc = 1; B.kind = 'euk'; }
+        B.x += (w / 2 - B.x) * Math.min(1, dt * 0.35);
+      } else {
+        if (divs.length && u > divs[0]) { divs.shift(); divide(m, 0.8); }
+        settle(dt, w, h, 0.98, 1.1);
+        if (u > 7) { // differentiate: the outer cells and the inner cells take different jobs
+          const mx = cells.reduce((s, c) => s + c.x, 0) / cells.length, my = cells.reduce((s, c) => s + c.y, 0) / cells.length;
+          const far = cells.map((c) => Math.hypot(c.x - mx, c.y - my)).sort((a, b) => a - b), mid = far[Math.floor(far.length / 2)];
+          cells.forEach((c, i) => { c.to = Math.hypot(c.x - mx, c.y - my) > mid ? 188 : (i % 3 ? 46 : 320); c.spec = Math.min(1, c.spec + dt * 0.7); c.hue = lerp(c.hue, c.to, c.spec * Math.min(1, dt * 2)); });
+        }
+      }
+    }
+
+    function drawCell(ctx, c, w) {
+      const a = alpha * c.p, r = c.r;
+      ctx.beginPath();
+      for (let i = 0; i <= 44; i++) {
+        const an = i / 44 * TAU, rr = r * (1 + 0.035 * Math.sin(3 * an + t * 1.5 + c.ph) + 0.025 * Math.sin(5 * an - t * 1.1));
+        ctx.lineTo(c.x + Math.cos(an) * rr, c.y + Math.sin(an) * rr);
+      }
+      ctx.closePath(); ctx.fillStyle = hsl(c.hue, 80, 55, 0.14 * a); ctx.fill();
+      ctx.lineWidth = c.kind === 'euk' && phase === 2 ? 2.4 : 2; ctx.strokeStyle = hsl(c.hue, 85, 68, 0.88 * a); ctx.stroke();
+      if (r < 6) return;
+      if (c.kind === 'proto') { // molecules held inside the droplet
+        ctx.globalCompositeOperation = 'lighter';
+        c.mols.forEach((mo) => { const s = Math.max(8, r * 0.34); ctx.globalAlpha = a; ctx.drawImage(A.glowSprite(mo.hue, 85, 60), c.x + Math.cos(mo.a + t * mo.sp) * mo.d * r - s / 2, c.y + Math.sin(mo.a + t * mo.sp) * mo.d * r - s / 2, s, s); });
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+        return;
+      }
+      let nx = c.x, ny = c.y;
+      const nr = r * (c.kind === 'euk' && phase === 2 ? 0.34 : 0.36) * (c.nuc > 0 ? Math.max(0.15, c.nuc) : 1);
+      if (c.nuc > 0) { // the envelope closes around the DNA
+        nx = c.x - r * 0.12; ny = c.y - r * 0.08;
+        ctx.lineWidth = 1.8; ctx.strokeStyle = hsl(188, 85, 66, 0.9 * a * c.nuc); ctx.beginPath(); ctx.arc(nx, ny, nr, 0, TAU); ctx.stroke();
+      } else { nx = c.x + Math.sin(t * 0.7 + c.ph) * r * 0.22; ny = c.y + Math.cos(t * 0.6 + c.ph) * r * 0.18; } // loose DNA drifting in the open cytoplasm
+      ctx.lineWidth = 1.6; ctx.strokeStyle = hsl(46, 92, 66, 0.9 * a); ctx.beginPath();
+      for (let i = 0; i <= 28; i++) { const an = i / 28 * TAU, rr = Math.max(2, r * 0.22 * (c.nuc > 0 ? 0.8 : 1)) * (1 + 0.18 * Math.sin(4 * an + t)); ctx.lineTo(nx + Math.cos(an) * rr, ny + Math.sin(an) * rr * 0.8); }
+      ctx.stroke();
+      if (c.mito && c.mitoP > 0) { // a mitochondrion: a green capsule with a fold inside
+        const mx = c.x + r * 0.42, my = c.y + r * 0.28, ml = r * 0.2 * c.mitoP;
+        ctx.save(); ctx.translate(mx, my); ctx.rotate(0.6 + c.ph * 0.1);
+        ctx.fillStyle = hsl(140, 70, 50, 0.4 * a); ctx.strokeStyle = hsl(140, 80, 65, 0.95 * a); ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.ellipse(0, 0, ml * 1.5, ml * 0.8, 0, 0, TAU); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-ml, 0); ctx.quadraticCurveTo(-ml * 0.4, -ml * 0.7, 0, 0); ctx.quadraticCurveTo(ml * 0.4, ml * 0.7, ml, 0); ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    return make(cv, {
+      step,
+      draw(ctx, w, h) {
+        if (!cells.length) return;
+        cells.slice().sort((a, b) => a.r - b.r).forEach((c) => drawCell(ctx, c, w));
+        const note = phase === 0 ? (u < 2.6 ? 'a protocell grows around its molecules' : u < 4.8 ? 'it divides: the copies keep their molecules' : 'whole cells can now compete and be selected')
+          : phase === 1 ? (u < 2.2 ? 'a bigger cell meets a smaller one' : u < 3.8 ? 'it swallows the guest, which becomes the mitochondrion' : 'the DNA gets its own envelope: a nucleus')
+          : (u < 7 ? 'cells divide and stay stuck together' : 'cells specialize: a body with different jobs');
+        ctx.globalAlpha = Math.min(1, alpha + 0.3);
+        ctx.fillStyle = 'rgba(190,240,255,0.78)'; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
+        ctx.fillText(note, 14, 20);
+        STEPS.forEach((s, i) => { // which step we are on
+          const x = 14 + i * Math.min(w / 3, 130), on = i === phase;
+          ctx.fillStyle = on ? hsl(46, 95, 64, 0.95) : 'rgba(190,240,255,0.35)';
+          ctx.beginPath(); ctx.arc(x + 4, h - 15, on ? 4 : 3, 0, TAU); ctx.fill();
+          ctx.font = (on ? '700 ' : '500 ') + '11px ' + FONT; ctx.fillText(s, x + 13, h - 11);
+        });
+        ctx.globalAlpha = 1;
+      },
+    }, 160);
+  }
+
+  /* ---------- Stage 6: natural vs forced selection ---------- */
+  function stage6(cv, readout) {
     const N = 220, B = 36;
     let pop = Array.from({ length: N }, () => A.clamp(0.5 + A.gauss() * 0.1, 0, 1));
     let mode = 'natural', opt = 0.5, goal = 0.82, wait = 0.5, gen = 0, dispOpt = 0.5, lastTxt = -1e9;
@@ -332,6 +476,6 @@
 
   A.makeStages = (els) => ({
     s1: stage1(els.s1), s2: stage2(els.s2), s3: stage3(els.s3),
-    s4: stage4(els.s4, els.s4text), s5: stage5(els.s5, els.s5text),
+    s4: stage4(els.s4, els.s4text), s5: stage5(els.s5), s6: stage6(els.s6, els.s6text),
   });
 })();

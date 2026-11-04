@@ -28,7 +28,7 @@ assets/chem.js       DOM-free rules (mutation, crossover, METHINKS watch, event 
 assets/app.js        shared runtime: one animation loop, state, colours, helpers
 assets/soup.js       the soup simulation
 assets/soupview.js   canvas drawing and pointer interaction for the soup
-assets/stages.js     the five stage illustrations
+assets/stages.js     the six stage illustrations
 assets/lineage.js    the interactive lineage tree
 assets/fx.js         depth layers, plankton, membranes between sections, stage tendril
 assets/sound.js      synthesized sound effects (Web Audio, no files), off until "Sound" is pressed

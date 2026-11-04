@@ -162,13 +162,13 @@
     });
     $('lin-strip').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) play('pick', +b.dataset.id); });
     $('lin-svg').addEventListener('click', (e) => { const g = e.target.closest('.node'); if (g) play('pick', +g.dataset.id); });
-    $('s5').addEventListener('pointerdown', () => play('ping'));
+    $('s6').addEventListener('pointerdown', () => play('ping'));
     // each stage picture chimes its own note as it comes into view
     if (window.IntersectionObserver) {
       const io = new IntersectionObserver((en) => en.forEach((x) => {
         if (x.isIntersecting && !quiet('stage', 900)) play('stage', +x.target.id.slice(1));
       }), { threshold: 0.6 });
-      ['s1', 's2', 's3', 's4', 's5'].forEach((id) => io.observe($(id)));
+      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach((id) => io.observe($(id)));
     }
   }
 
