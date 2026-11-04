@@ -117,7 +117,7 @@
   <svg class="membrane" aria-hidden="true" viewBox="0 0 1200 120" preserveAspectRatio="none"><path/></svg>
   <div class="wrap">
     <h2 id="h-stages" class="reveal">Six stages, from soup to scenario</h2>
-    <p class="sublede reveal">Abiogenesis is built in stages. Stage 1 is done and is what you can download today. The other five are the roadmap, and the pictures below are illustrations of what each is meant to show, not screenshots.</p>
+    <p class="sublede reveal">Abiogenesis is built in stages. Stages 1 to 3 are done and are what you can download today (version 0.3.0). The other three are the roadmap, and the pictures below are illustrations of what each is meant to show, not screenshots.</p>
 
     <div class="journey" id="journey">
       <svg class="tendril" aria-hidden="true"><path class="t0" pathLength="1"/><path class="t1" pathLength="1"/></svg>
@@ -139,12 +139,12 @@
         <li class="stage" data-stage="2">
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
-            <header><span class="num">Stage 2</span><span class="chip wip">In progress</span></header>
+            <header><span class="num">Stage 2</span><span class="chip done">Done</span></header>
             <h3>Environment</h3>
-            <p>Temperature, pH and wetness that cycle over time (wet and dry pools, day and night), user controls, then a grid environment and protocells.</p>
+            <p>Temperature, pH and wetness that cycle over time (wet and dry pools, day and night), with controls for both. As the pool dries, chains crowd together, and where they do a protocell forms: a droplet that keeps its chains in and makes them mutate faster. It bursts when the pool refills.</p>
             <figure class="fig">
               <canvas id="s2" aria-hidden="true"></canvas>
-              <figcaption>Illustration of a planned feature: a pool dries and refills at irregular intervals, and chains concentrate as the water drops. A droplet forms where they crowd.</figcaption>
+              <figcaption>An illustration of how it works in the app: a pool dries and refills at irregular intervals, and chains concentrate as the water drops. A droplet forms where they crowd.</figcaption>
             </figure>
           </article>
         </li>
@@ -152,12 +152,12 @@
         <li class="stage" data-stage="3">
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
-            <header><span class="num">Stage 3</span><span class="chip plan">Planned</span></header>
+            <header><span class="num">Stage 3</span><span class="chip done">Done</span></header>
             <h3>Chemistry and emergence</h3>
-            <p>Lipids and nucleotides, polymerization rules, autocatalysis, self-replication, and a fitness for each molecule.</p>
+            <p>Lipids and nucleotides. Nucleotides join into RNA-like strands, strands copy themselves into their complement (with the odd mistake) when there are building blocks nearby, and a strand carrying a catalytic motif copies four times as fast. Every molecule has a fitness, and fit strands last longer, so the soup fills with strands that are better at surviving and copying.</p>
             <figure class="fig">
               <canvas id="s3" aria-hidden="true"></canvas>
-              <figcaption>Illustration of a planned feature: lipids with a water-loving head and oily tails drift, then turn their heads outward and close into a vesicle around molecules, until it bursts.</figcaption>
+              <figcaption>An illustration of how it works in the app: lipids with a water-loving head and oily tails drift, then turn their heads outward and close into a vesicle around molecules, until it bursts.</figcaption>
             </figure>
           </article>
         </li>
@@ -170,7 +170,7 @@
             <p>Live charts for molecular diversity, complexity, replicators and the environment, plus a clearer view of chain generation and lineage.</p>
             <figure class="fig">
               <canvas id="s4" aria-hidden="true"></canvas>
-              <figcaption>A preview, fed live by the soup at the top of this page. Replicators cannot be measured until Stage 3 exists.</figcaption>
+              <figcaption>A preview, fed live by the soup at the top of this page. Counting replicators comes with Stage 4's charts, now that Stage 3's strands exist.</figcaption>
             </figure>
             <p class="readout" id="s4-text">Charts fill in as the soup runs.</p>
           </article>
@@ -328,7 +328,7 @@
 <noscript>
   <div class="noscript">
     <h2>Abiogenesis</h2>
-    <p>A small Rust simulation of how life could arise from non-living matter: water and methane molecules drift in a primordial soup, amino acid chains form, mutate and recombine, and (planned) populations evolve under natural and forced selection. Stage 1 is done; stages 2 to 5 (environment, chemistry, metrics, scenario lab) are on the roadmap.</p>
+    <p>A small Rust simulation of how life could arise from non-living matter: water and methane molecules drift in a primordial soup, amino acid chains form, mutate and recombine, and (planned) populations evolve under natural and forced selection. Stages 1 to 3 (the soup, the environment, and chemistry with self-copying strands) are done; stages 4 to 6 (metrics, cells to complex life, scenario lab) are on the roadmap.</p>
     <p>This page draws a live animated soup with JavaScript, which is switched off here. The app itself needs nothing else.</p>
     <p><a href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download the latest release</a> (macOS, Windows, Linux) &middot; <a href="https://github.com/dhairyab0069/abiogenesis">Repository</a> &middot; <a href="https://github.com/dhairyab0069/abiogenesis#readme">README</a></p>
   </div>
