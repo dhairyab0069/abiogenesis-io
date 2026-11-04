@@ -107,11 +107,6 @@
 
     A.bus.on('motion', (s) => { if (s.calm) { const i = $('intro'); if (i) i.remove(); } });
 
-    const nat = $('sel-natural'), frc = $('sel-forced');
-    const setSel = (m) => { nat.setAttribute('aria-pressed', String(m === 'natural')); frc.setAttribute('aria-pressed', String(m === 'forced')); stages.s6.setMode(m); };
-    nat.addEventListener('click', () => setSel('natural'));
-    frc.addEventListener('click', () => setSel('forced'));
-
     // the notebook starts closed on phones, where space is tight
     if (window.matchMedia('(max-width: 760px)').matches) $('notebook').removeAttribute('open');
   }
@@ -171,7 +166,7 @@
     const hud = {};
     document.querySelectorAll('[data-hud]').forEach((e) => (hud[e.dataset.hud] = e));
     const view = A.makeSoupView($('soup'), hud);
-    const stages = A.makeStages({ s1: $('s1'), s2: $('s2'), s3: $('s3'), s4: $('s4'), s4text: $('s4-text'), s5: $('s5'), s6: $('s6'), s6text: $('s6-text') });
+    const stages = A.makeStages({ s1: $('s1'), s2: $('s2'), s3: $('s3'), s4: $('s4'), s4text: $('s4-text'), s5: $('s5') });
     A.makeLineage({ strip: $('lin-strip'), svg: $('lin-svg'), detail: $('lin-detail'), live: $('lin-live'), follow: $('lin-follow'), stats: $('lin-stats') });
     controls(view, stages);
     A.initFx();

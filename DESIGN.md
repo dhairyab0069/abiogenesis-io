@@ -35,18 +35,19 @@ Sound is on by default; the context is created and resumed at the first pointerd
 ## Interaction inventory
 * The soup: move to pull molecules in, tap to drop a chain (with a ripple when Effects are on), press and hold to stir a current, hover a chain to read its letters.
 * The instruments: temperature and pH sliders; Spark (lightning), Drop a chain, Plant METHINKS; a lab notebook in plain words.
-* Six stage illustrations (below). Stage 6 has a Natural/Forced selection toggle, and clicking the picture sets the target or shocks the world.
+* Five feature illustrations (below), numbered Feature 1 to 5. The page shows features only: no Built/Planned chips and no roadmap.
 * The lineage tree: pick a chain, follow it as it mutates, click a node to re-root.
 * Downloads: platform detected from the user agent (both Mac cards on a Mac, since Apple Silicon and Intel cannot be told apart), first-launch notes, links to the latest release.
 * Dock (bottom right): Sound, Motion, Effects, Quiet everything, then the Light/Dark/Auto selector.
 
-## The stages
+## The stages (the page calls them Features 1 to 5)
 1. Basic simulation: the soup above (built).
 2. Environment: wet and dry pools, day and night, protocells that keep chains in (built).
 3. Chemistry and emergence: lipids, nucleotides, RNA-like strands that copy themselves, catalysts, fitness (built).
 4. Visualization and metrics: proteins read off RNA strands by the genetic code, the Genes and Proteins screen (an animated scene of strands forming, copying and being translated), live charts and a protein lineage (built).
 5. Cells to complex life: cells formed from lipid bilayers that grow and divide, eukaryotes (engulfing, mitochondria, nucleus) and colonies with roles (built).
-6. Scenario lab: planned. Its picture is a toy population, labelled as such.
+
+Roadmap (repo docs only, not on the page): Stage 6, the scenario lab (natural or forced selection, a small Rust language model as a learned fitness prior). Its page card and toy population were removed because the feature is not built; see the project roadmap in the app repo.
 The Stage 4 and 5 pictures say they are an illustration of how it works in the app. The download section always points at the latest release.
 
 ## Accessibility notes
@@ -64,7 +65,7 @@ The Stage 4 and 5 pictures say they are an illustration of how it works in the a
 * The check script's token heuristic wants a dark `prefers-color-scheme` fallback; this page defaults to dark in `:root` and uses a light media rule instead, which behaves the same.
 
 ## How to extend
-* New stage: add a card in `index.html`, an illustration in `assets/stages.js` (register it with `make`), and its note to the stage sounds. Update the stage chips and this file.
+* New stage: add a card in `index.html`, an illustration in `assets/stages.js` (register it with `make`), and its note to the stage sounds. Update this file.
 * New sound: add a voice in `assets/sound.js` and call `A.sound.play('name')`; it is silent when Sound is off.
 * New decorative effect: guard it with `A.state.fx` (JS) or `html[data-fx="off"]` (CSS). New motion must be driven by the loop or CSS and stop under `A.state.calm`.
 * New colours: add them to both palettes (`PALS` in `assets/app.js`) and both token blocks in `assets/style.css`.

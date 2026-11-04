@@ -1,5 +1,5 @@
 /*
- * stages.js - one small animated illustration per roadmap stage, each with a
+ * stages.js - one small animated illustration per feature, each with a
  * different behaviour and none with a fixed period:
  *   1  chain tiles that mutate and recombine (what the app does today)
  *   2  a pool that dries and refills at irregular intervals, chains concentrate
@@ -7,8 +7,7 @@
  *   4  live charts fed by the hero soup's history (a preview of the metrics)
  *   5  protocells divide, one swallows another (mitochondrion) and grows a nucleus,
  *      then cells stay together and specialize (a loop of three scenes)
- *   6  a population under natural or forced selection (the visitor toggles it)
- * Stages 2 to 6 are illustrations of PLANNED features, not app screenshots.
+ * These are illustrations of the app's features, not app screenshots.
  * Each factory builds its state, pre-warms it (so reduced-motion gets a
  * meaningful still), and registers a ticker with the shared loop.
  */
@@ -241,7 +240,7 @@
           if (i === 3) { // the app counts strands here; this page's soup has none, so say so
             ctx.fillStyle = A.ink(0.5); ctx.fillText('replicators', x0 + 4, y0 + 12);
             ctx.setLineDash([4, 5]); ctx.strokeStyle = A.ink(0.35); ctx.beginPath(); ctx.moveTo(x0, y0 + ph * 0.65); ctx.lineTo(x0 + pw, y0 + ph * 0.65); ctx.stroke(); ctx.setLineDash([]);
-            ctx.fillText('in the app: needs Stage 3 strands', x0 + 4, y0 + ph - 4);
+            ctx.fillText('in the app: needs self-copying strands', x0 + 4, y0 + ph - 4);
             continue;
           }
           const d = defs[i], data = H[d.k];
@@ -417,66 +416,8 @@
     }, 160);
   }
 
-  /* ---------- Stage 6: natural vs forced selection ---------- */
-  function stage6(cv, readout) {
-    const N = 220, B = 36;
-    let pop = Array.from({ length: N }, () => A.clamp(0.5 + A.gauss() * 0.1, 0, 1));
-    let mode = 'natural', opt = 0.5, goal = 0.82, wait = 0.5, gen = 0, dispOpt = 0.5, lastTxt = -1e9;
-    const shown = new Float32Array(B);
-    const stats = () => { const m = pop.reduce((a, b) => a + b, 0) / N; return { m, sd: Math.sqrt(pop.reduce((a, b) => a + (b - m) * (b - m), 0) / N) }; };
-    function generation() {
-      gen++;
-      if (mode === 'natural') { opt = A.clamp(opt + A.gauss() * 0.035 + (Math.random() < 0.07 ? A.gauss() * 0.25 : 0), 0.05, 0.95); }
-      else opt = goal;
-      const sig = mode === 'natural' ? 0.3 : 0.07, mu = mode === 'natural' ? 0.03 : 0.012;
-      const fit = pop.map((t) => Math.exp(-((t - opt) * (t - opt)) / (2 * sig * sig)) + 1e-4);
-      const cum = []; let s = 0; fit.forEach((f) => { s += f; cum.push(s); });
-      pop = pop.map(() => {
-        let r = Math.random() * s, lo = 0, hi = N - 1;
-        while (lo < hi) { const mid = (lo + hi) >> 1; if (cum[mid] < r) lo = mid + 1; else hi = mid; }
-        return A.clamp(pop[lo] + A.gauss() * mu, 0, 1);
-      });
-    }
-    const api = {
-      step(dt) {
-        wait -= dt; if (wait <= 0) { generation(); wait = A.rnd(0.35, 1.1); }
-        dispOpt += (opt - dispOpt) * Math.min(1, dt * 3);
-        const hist = new Float32Array(B);
-        pop.forEach((t) => { hist[Math.min(B - 1, Math.floor(t * B))]++; });
-        for (let i = 0; i < B; i++) shown[i] += (hist[i] - shown[i]) * Math.min(1, dt * 5);
-      },
-      draw(ctx, w, h) {
-        const bw = w / B, base = h - 26;
-        for (let i = 0; i < B; i++) {
-          const bh = Math.min(1, Math.sqrt(shown[i] / 70)) * (base - 20), hue = 188 - (i / B) * 228;
-          const gr = ctx.createLinearGradient(0, base - bh, 0, base);
-          gr.addColorStop(0, hsl(hue, 85, 62, 0.95)); gr.addColorStop(1, hsl(hue, 85, 40, 0.2));
-          ctx.fillStyle = gr; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(i * bw + 1.5, base - bh, bw - 3, Math.max(bh, 0), 4) : ctx.rect(i * bw + 1.5, base - bh, bw - 3, bh); ctx.fill();
-        }
-        const ox = dispOpt * w;
-        ctx.setLineDash([5, 5]); ctx.strokeStyle = mode === 'forced' ? hsl(46, 95, 62, 0.95) : hsl(160, 90, 65, 0.8); ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(ox, 8); ctx.lineTo(ox, base + 4); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = A.ink(0.78); ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
-        ctx.fillText(mode === 'natural' ? 'natural: a drifting world, the population follows' : 'forced: your target, hard selection', 12, h - 8);
-        const now = performance.now();
-        if (readout && now - lastTxt > 800) {
-          lastTxt = now; const st = stats();
-          readout.textContent = 'Generation ' + gen + ' (' + mode + ' selection): mean trait ' + st.m.toFixed(2) + ', spread ' + st.sd.toFixed(3) + (mode === 'forced' ? ', target ' + goal.toFixed(2) : '') + '.';
-        }
-      },
-    };
-    const tk = make(cv, api, 60);
-    cv.addEventListener('pointerdown', (e) => { // click sets the forced target (or shocks the natural world)
-      const r = cv.getBoundingClientRect(), v = A.clamp((e.clientX - r.left) / r.width, 0.03, 0.97);
-      if (mode === 'forced') goal = v; else opt = v;
-      if (A.frozen()) A.loop.redraw();
-    });
-    tk.setMode = (m) => { mode = m; if (m === 'forced') goal = A.clamp(opt + (Math.random() < 0.5 ? -1 : 1) * 0.3, 0.1, 0.9); if (A.frozen()) A.loop.redraw(); };
-    return tk;
-  }
-
   A.makeStages = (els) => ({
     s1: stage1(els.s1), s2: stage2(els.s2), s3: stage3(els.s3),
-    s4: stage4(els.s4, els.s4text), s5: stage5(els.s5), s6: stage6(els.s6, els.s6text),
+    s4: stage4(els.s4, els.s4text), s5: stage5(els.s5),
   });
 })();

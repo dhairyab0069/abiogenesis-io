@@ -8,7 +8,7 @@ It is a static site: HTML, CSS and vanilla JavaScript, no build step, no librari
 requests, no trackers, no web fonts. The hero is a live canvas "primordial soup" that follows the
 same rules as the app (20 amino acids, chains of 1 to 50, mutation by substitution, insertion and
 deletion, recombination by crossover, temperature-dependent Brownian motion, a watch for
-`METHINKS`). Each roadmap stage has its own small animation, and a lineage tree is drawn from the
+`METHINKS`). Each feature has its own small animation, and a lineage tree is drawn from the
 live simulation's event log.
 
 ## Run locally
@@ -28,7 +28,7 @@ assets/chem.js       DOM-free rules (mutation, crossover, METHINKS watch, event 
 assets/app.js        shared runtime: one animation loop, state, colours, helpers
 assets/soup.js       the soup simulation
 assets/soupview.js   canvas drawing and pointer interaction for the soup
-assets/stages.js     the six stage illustrations
+assets/stages.js     the five feature illustrations
 assets/lineage.js    the interactive lineage tree
 assets/fx.js         depth layers, plankton, membranes between sections, stage tendril
 assets/sound.js      synthesized sound effects (Web Audio, no files), on by default
@@ -68,7 +68,7 @@ state ("Sound on") and a 44px target.
 
 ## Stages
 
-Stages 1 to 5 are built and shown as "Built"; Stage 6 is still planned. The download section points at the latest release. The design is documented in `DESIGN.md`.
+The page shows features only (Features 1 to 5); the roadmap, including Stage 6, lives in the app repo. The download section points at the latest release. The design is documented in `DESIGN.md`.
 
 ## Deploy
 

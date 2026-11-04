@@ -117,8 +117,6 @@
       });
     },
     tick(v) { tone({ f: 260 + v * 700, type: 'triangle', dur: 0.05, gain: 0.05, attack: 0.003 }); },
-    natural() { tone({ f: 196, type: 'triangle', dur: 0.4, gain: 0.1 }); tone({ f: 294, dur: 0.4, gain: 0.05 }); },
-    forced() { tone({ f: 330, type: 'square', dur: 0.14, gain: 0.04, attack: 0.002 }); hiss({ type: 'highpass', f: 3500, gain: 0.07, dur: 0.05 }); },
     pick(id) { tone({ f: hz(PENTA[id % 5] + 12 * (1 + (id % 2))), dur: 0.16, gain: 0.07 }); },
     ping() { tone({ f: 880, dur: 0.5, gain: 0.07 }); tone({ f: 1320, dur: 0.3, gain: 0.03 }); },
     stage(n) { tone({ f: hz(PENTA[n % 5] + 12), type: 'triangle', dur: 0.8, gain: 0.06, attack: 0.03 }); tone({ f: hz(PENTA[n % 5] + 24), dur: 0.8, gain: 0.025, attack: 0.03 }); },
@@ -153,17 +151,14 @@
       if (quiet('tick', 70)) return;
       play('tick', (+el.value - +el.min) / (+el.max - +el.min));
     }));
-    $('sel-natural').addEventListener('click', () => play('natural'));
-    $('sel-forced').addEventListener('click', () => play('forced'));
     $('lin-strip').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) play('pick', +b.dataset.id); });
     $('lin-svg').addEventListener('click', (e) => { const g = e.target.closest('.node'); if (g) play('pick', +g.dataset.id); });
-    $('s6').addEventListener('pointerdown', () => play('ping'));
     // each stage picture chimes its own note as it comes into view
     if (window.IntersectionObserver) {
       const io = new IntersectionObserver((en) => en.forEach((x) => {
         if (x.isIntersecting && !quiet('stage', 900)) play('stage', +x.target.id.slice(1));
       }), { threshold: 0.6 });
-      ['s1', 's2', 's3', 's4', 's5', 's6'].forEach((id) => io.observe($(id)));
+      ['s1', 's2', 's3', 's4', 's5'].forEach((id) => io.observe($(id)));
     }
   }
 

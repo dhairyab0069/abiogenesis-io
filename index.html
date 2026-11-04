@@ -78,7 +78,7 @@
 <header class="bar">
   <a class="brand" href="#top" aria-label="Abiogenesis, back to top"><img src="assets/favicon-64.png" width="28" height="28" alt=""><span>Abiogenesis</span></a>
   <nav aria-label="Sections">
-    <a href="#soup-tray">Soup</a><a href="#stages">Stages</a><a href="#how">How</a><a href="#download">Download</a>
+    <a href="#soup-tray">Soup</a><a href="#features">Features</a><a href="#how">How</a><a href="#download">Download</a>
   </nav>
 </header>
 
@@ -143,11 +143,11 @@
 </section>
 
 <!-- ============ STAGES ============ -->
-<section class="sec" id="stages" aria-labelledby="h-stages">
+<section class="sec" id="features" aria-labelledby="h-features">
   <svg class="membrane" aria-hidden="true" viewBox="0 0 1200 120" preserveAspectRatio="none"><path/></svg>
   <div class="wrap">
-    <h2 id="h-stages" class="reveal">Six stages, from soup to scenario</h2>
-    <p class="sublede reveal">Abiogenesis is built in stages: Stages 1 to 5 are built, and Stage 6 is the roadmap. The pictures below are small illustrations of how each stage works in the app, not screenshots.</p>
+    <h2 id="h-features" class="reveal">What it simulates, from soup to cells</h2>
+    <p class="sublede reveal">The pictures below are small in-page illustrations of how each feature works in the app, not screenshots.</p>
 
     <div class="journey" id="journey">
       <svg class="tendril" aria-hidden="true"><path class="t0" pathLength="1"/><path class="t1" pathLength="1"/></svg>
@@ -156,7 +156,7 @@
         <li class="stage" data-stage="1">
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
-            <header><span class="num">Stage 1</span><span class="chip done">Built</span></header>
+            <header><span class="num">Feature 1</span></header>
             <h3>Basic simulation</h3>
             <p>Molecules, movement, collisions, temperature and pH, amino acid chain generation, mutation and recombination, pattern tracking, interactive tooltips and a launcher. This is the soup above.</p>
             <figure class="fig">
@@ -169,7 +169,7 @@
         <li class="stage" data-stage="2">
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
-            <header><span class="num">Stage 2</span><span class="chip done">Built</span></header>
+            <header><span class="num">Feature 2</span></header>
             <h3>Environment</h3>
             <p>Temperature, pH and wetness that cycle over time (wet and dry pools, day and night), with controls for both. As the pool dries, chains crowd together, and where they do a protocell forms: a droplet that keeps its chains in and makes them mutate faster. It bursts when the pool refills.</p>
             <figure class="fig">
@@ -182,7 +182,7 @@
         <li class="stage" data-stage="3">
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
-            <header><span class="num">Stage 3</span><span class="chip done">Built</span></header>
+            <header><span class="num">Feature 3</span></header>
             <h3>Chemistry and emergence</h3>
             <p>Lipids and nucleotides. Nucleotides join into RNA-like strands, strands copy themselves into their complement (with the odd mistake) when there are building blocks nearby, and a strand carrying a catalytic motif copies four times as fast. Every molecule has a fitness, and fit strands last longer, so the soup fills with strands that are better at surviving and copying.</p>
             <figure class="fig">
@@ -195,12 +195,12 @@
         <li class="stage" data-stage="4">
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
-            <header><span class="num">Stage 4</span><span class="chip done">Built</span></header>
+            <header><span class="num">Feature 4</span></header>
             <h3>Visualization and metrics</h3>
             <p>Proteins read off RNA strands by the genetic code: a strand that holds the start codon AUG carries a gene, and now and then it makes its protein as a new amino acid chain. A Genes and Proteins screen plays the whole story as an animated scene (nucleotides forming RNA or DNA, copying, then translation by a ribosome). Live charts track diversity, strands and the environment, and a protein lineage shows who came from whom.</p>
             <figure class="fig">
               <canvas id="s4" aria-hidden="true"></canvas>
-              <figcaption>An illustration of how it works in the app: live charts, drawn here from the soup at the top of this page. The app also charts strands and replicators, which need Stage 3's strands and are left empty in this simple soup.</figcaption>
+              <figcaption>An illustration of how it works in the app: live charts, drawn here from the soup at the top of this page. The app also charts strands and replicators, which need the self-copying strands of feature 3 and are left empty in this simple soup.</figcaption>
             </figure>
             <p class="readout" id="s4-text">Charts fill in as the soup runs.</p>
           </article>
@@ -209,7 +209,7 @@
         <li class="stage" data-stage="5">
           <i class="knot" aria-hidden="true"></i>
           <article class="card blob reveal wipe">
-            <header><span class="num">Stage 5</span><span class="chip done">Built</span></header>
+            <header><span class="num">Feature 5</span></header>
             <h3>Cells to complex life</h3>
             <p>From droplets to organisms. Cells form from lipid bilayers around strands, then grow and divide, and fitter cells divide more. Eukaryotes follow: one cell engulfs another, which becomes the mitochondrion, and the strands move into their own envelope, the nucleus. Cells that stay together form colonies whose members take roles (germ, soma and feeder cells).</p>
             <figure class="fig">
@@ -219,26 +219,8 @@
           </article>
         </li>
 
-        <li class="stage" data-stage="6">
-          <i class="knot" aria-hidden="true"></i>
-          <article class="card blob reveal wipe">
-            <header><span class="num">Stage 6</span><span class="chip plan">Planned</span></header>
-            <h3>Scenario lab</h3>
-            <p>Build a scenario, choose natural or forced selection, and watch populations evolve over time. A small language model trained on protein sequences, written from scratch in Rust, is planned to supply a learned fitness and mutation prior.</p>
-            <figure class="fig">
-              <canvas id="s6" aria-hidden="true"></canvas>
-              <figcaption>A toy population: each bar counts individuals with that trait value. Toggle the pressure, and click the field to move the target (forced) or shock the world (natural). The transformer fitness model is not part of this toy.</figcaption>
-            </figure>
-            <div class="seg" role="group" aria-label="Selection pressure">
-              <button type="button" id="sel-natural" aria-pressed="true">Natural selection</button>
-              <button type="button" id="sel-forced" aria-pressed="false">Forced selection</button>
-            </div>
-            <p class="readout" id="s6-text">Generation 0.</p>
-          </article>
-        </li>
       </ol>
     </div>
-    <p class="tiny reveal">Roadmap: see the <a href="https://github.com/dhairyab0069/abiogenesis#roadmap">project roadmap</a>. Stage 6 is next.</p>
   </div>
 </section>
 
@@ -266,7 +248,7 @@
       </div>
       <div class="card blob reveal wipe">
         <h3>Chance and METHINKS</h3>
-        <p>The app watches for the sequence METHINKS (8 letters, from Hamlet). By pure luck that is about 1 in 25.6 billion per try, so you will almost never see it emerge here. That gap is why selection (Stages 5 and 6) matters. The button in the tray plants it by hand, and says so in the notebook.</p>
+        <p>The app watches for the sequence METHINKS (8 letters, from Hamlet). By pure luck that is about 1 in 25.6 billion per try, so you will almost never see it emerge here. That gap is why selection matters. The button in the tray plants it by hand, and says so in the notebook.</p>
       </div>
     </div>
 
@@ -289,7 +271,7 @@
   <svg class="membrane" aria-hidden="true" viewBox="0 0 1200 120" preserveAspectRatio="none"><path/></svg>
   <div class="wrap">
     <h2 id="h-dl" class="reveal">Get the app</h2>
-    <p class="sublede reveal">One self-contained program, no Java, no runtime, nothing else to install. Every button opens the latest release page, where you pick the file named below.</p>
+    <p class="sublede reveal">One self-contained program, no Java, no runtime, nothing else to install. Every button opens the download page, where you pick the file named below.</p>
     <p class="detected" id="detected" role="status"></p>
     <div class="dl">
       <article class="card blob dlcard reveal wipe" data-plat="mac">
@@ -297,28 +279,28 @@
         <h3>macOS, Apple Silicon</h3>
         <p><code>Abiogenesis-&lt;version&gt;-macos-arm64.dmg</code></p>
         <p class="tiny">M1 and later. Open the .dmg and drag Abiogenesis to Applications.</p>
-        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Latest release</a>
+        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download</a>
       </article>
       <article class="card blob dlcard reveal wipe" data-plat="mac">
         <span class="badge" hidden>Your system?</span>
         <h3>macOS, Intel</h3>
         <p><code>Abiogenesis-&lt;version&gt;-macos-x86_64.dmg</code></p>
         <p class="tiny">Not sure which Mac you have? Apple menu, About This Mac.</p>
-        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Latest release</a>
+        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download</a>
       </article>
       <article class="card blob dlcard reveal wipe" data-plat="win">
         <span class="badge" hidden>Your system</span>
         <h3>Windows</h3>
         <p><code>Abiogenesis-&lt;version&gt;-windows-x86_64-setup.exe</code></p>
         <p class="tiny">Installs without admin rights and adds a Start menu entry.</p>
-        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Latest release</a>
+        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download</a>
       </article>
       <article class="card blob dlcard reveal wipe" data-plat="bin">
         <span class="badge" hidden>Your system</span>
         <h3>Plain binaries</h3>
         <p><code>abiogenesis-macos-arm64</code>, <code>abiogenesis-macos-x86_64</code>, <code>abiogenesis-linux-x86_64</code>, <code>abiogenesis-windows-x86_64.exe</code></p>
         <p class="tiny">The only option for Linux. Run <code>chmod +x</code> on the file, then start it.</p>
-        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Latest release</a>
+        <a class="btn" href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download</a>
       </article>
     </div>
 
@@ -341,7 +323,6 @@
     <p class="links reveal">
       <a class="btn alt" href="https://github.com/dhairyab0069/abiogenesis">Repository</a>
       <a class="btn alt" href="https://github.com/dhairyab0069/abiogenesis#readme">README</a>
-      <a class="btn alt" href="https://github.com/dhairyab0069/abiogenesis/releases">All releases</a>
     </p>
   </div>
 </section>
@@ -358,9 +339,9 @@
 <noscript>
   <div class="noscript">
     <h2>Abiogenesis</h2>
-    <p>A small Rust simulation of how life could arise from non-living matter: water and methane molecules drift in a primordial soup, amino acid chains form, mutate and recombine, and (planned) populations evolve under natural and forced selection. Stages 1 to 5 (the soup, the environment, chemistry with self-copying strands, proteins read off RNA, then cells, eukaryotes and colonies) are built; stage 6 (the scenario lab) is on the roadmap.</p>
+    <p>A small Rust simulation of how life could arise from non-living matter: water and methane molecules drift in a primordial soup, amino acid chains form, mutate and recombine, and grow into cells, eukaryotes and colonies. Features: the soup, an environment with protocells, chemistry with self-copying strands, proteins read off RNA, and cells, eukaryotes and colonies.</p>
     <p>This page draws a live animated soup with JavaScript, which is switched off here. The app itself needs nothing else.</p>
-    <p><a href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download the latest release</a> (macOS, Windows, Linux) &middot; <a href="https://github.com/dhairyab0069/abiogenesis">Repository</a> &middot; <a href="https://github.com/dhairyab0069/abiogenesis#readme">README</a></p>
+    <p><a href="https://github.com/dhairyab0069/abiogenesis/releases/latest">Download</a> (macOS, Windows, Linux) &middot; <a href="https://github.com/dhairyab0069/abiogenesis">Repository</a> &middot; <a href="https://github.com/dhairyab0069/abiogenesis#readme">README</a></p>
   </div>
 </noscript>
 </body>
