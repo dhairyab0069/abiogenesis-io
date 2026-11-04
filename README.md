@@ -31,10 +31,19 @@ assets/soupview.js   canvas drawing and pointer interaction for the soup
 assets/stages.js     the five stage illustrations
 assets/lineage.js    the interactive lineage tree
 assets/fx.js         depth layers, plankton, membranes between sections, stage tendril
+assets/sound.js      synthesized sound effects (Web Audio, no files), off until "Sound" is pressed
 assets/ui.js         controls, lab notebook, reveals, intro, platform detection, boot
 assets/style.css     styles
 tests/chem.test.js   Node tests: node tests/chem.test.js
 ```
+
+## Sound
+
+The "Sound" button (bottom right, off by default, remembered in `localStorage`) turns on small
+sounds made live with the Web Audio API: a voice for each kind of event in the soup (bubble, blip,
+merge, fade, lightning crackle, chime when METHINKS emerges), the sliders, Pause, Natural/Forced,
+the lineage tree, and each stage picture as it scrolls into view. Nothing plays while life is
+paused, motion is reduced, or the tab is hidden.
 
 ## Motion and accessibility
 
