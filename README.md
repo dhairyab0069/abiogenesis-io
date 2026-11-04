@@ -28,10 +28,11 @@ assets/chem.js       DOM-free rules (mutation, crossover, METHINKS watch, event 
 assets/app.js        shared runtime: one animation loop, state, colours, helpers
 assets/soup.js       the soup simulation
 assets/soupview.js   canvas drawing and pointer interaction for the soup
-assets/stages.js     the six stage illustrations
+assets/stages.js     the six stage illustrations (4 and 5 are built in the app, shipping in the next release)
 assets/lineage.js    the interactive lineage tree
 assets/fx.js         depth layers, plankton, membranes between sections, stage tendril
-assets/sound.js      synthesized sound effects (Web Audio, no files), off until "Sound" is pressed
+assets/sound.js      synthesized sound effects (Web Audio, no files), on by default
+assets/controls.js   the Sound, Motion, Effects and Quiet buttons (defaults on, versioned keys)
 assets/ui.js         controls, lab notebook, reveals, intro, platform detection, boot
 assets/theme.js      light / dark / auto switch, shared across the owner's sites
 assets/style.css     styles
@@ -48,19 +49,28 @@ charts and lineage tree recoloured to match. An inline script in `<head>` sets t
 short circle reveal and a soft sound cue (when sound is on), and is instant when motion is reduced. Code: `assets/theme.js`
 (switch and sync), `A.pal` and `A.L()` in `assets/app.js` (canvas colours), tokens at the top of `assets/style.css`.
 
-## Sound
+## Sound, motion and effects
 
-The "Sound" button (bottom right, off by default, remembered in `localStorage`) turns on small
-sounds made live with the Web Audio API: a voice for each kind of event in the soup (bubble, blip,
-merge, fade, lightning crackle, chime when METHINKS emerges), the sliders, Pause, Natural/Forced,
-the lineage tree, and each stage picture as it scrolls into view. Nothing plays while life is
-paused, motion is reduced, or the tab is hidden.
+Four symbol buttons sit in the bottom-right dock beside the Light/Dark/Auto selector: **Sound** (speaker), **Motion**
+(waves, pause bars when off), **Effects** (sparkle, slashed when off) and **Quiet everything** (circle with a bar), which
+turns all three off and, pressed again, restores exactly what was on. They are real buttons with `aria-pressed`, a spoken
+state ("Sound on") and a 44px target.
 
-## Motion and accessibility
+* **Defaults are on.** Motion starts off only when the system asks for reduced motion. Choices are kept in
+  `localStorage` under the new keys `abio2-sound`, `abio2-motion` and `abio2-fx`.
+* **Sound** is made live with the Web Audio API (no files): a voice for each kind of event in the soup, the sliders,
+  Natural/Forced, the lineage tree, and each stage picture as it scrolls into view. Browsers allow audio only after a
+  gesture, so it unlocks at the first click, key or touch; the intro plays silent until then.
+* **Motion** replaces the old "Pause life" and "Reduce motion" buttons (they did the same thing: hold still). Off stops the
+  one animation loop, draws a still frame of every canvas and cuts all CSS animation (`html[data-motion="off"]`).
+* **Effects** are the decorative extras: the colour wash behind the soup, pointer halo and tap ripples, lightning flash,
+  plankton, depth orbs, parallax, the membranes between sections and the pointer light on cards.
 
-"Pause life" freezes everything, "Reduce motion" (and the OS `prefers-reduced-motion` setting)
-turns the page into calm single frames with no loops or wobble. The animation loop also stops when
-the tab is hidden, and each canvas only draws while on screen.
+## Stages
+
+Stages 1 to 3 are in the current release (0.3.0), which is what the download section points at. Stages 4 (proteins read off RNA
+strands, the Genes and Proteins screen, charts and lineage) and 5 (cells, eukaryotes, colonies) are built and merged and are
+shown as such, "in the next release". Stage 6 is still planned. The design is documented in `DESIGN.md`.
 
 ## Deploy
 

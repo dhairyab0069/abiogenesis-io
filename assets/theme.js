@@ -4,7 +4,7 @@
    syncs other tabs and pages, follows the system in auto, and announces `themechange`. */
 (function (root) {
   'use strict';
-  var KEY = 'theme', html = document.documentElement;
+  var html = document.documentElement;
   var mq = root.matchMedia ? root.matchMedia('(prefers-color-scheme: dark)') : { matches: false };
   var META = { light: '#d7f0ee', dark: '#020b10' };
   var FADE_MS = 520;
@@ -26,9 +26,9 @@
     html.style.colorScheme = theme;
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', META[theme]);
-    sws.forEach(function (w) { [].forEach.call(w.querySelectorAll('[data-mode]'), function (b) {
-      b.setAttribute('aria-checked', String(b.getAttribute('data-mode') === mode));
-      b.tabIndex = b.getAttribute('data-mode') === mode ? 0 : -1;
+    sws.forEach(function (w) { [].forEach.call(w.querySelectorAll('[data-theme-mode]'), function (b) {
+      b.setAttribute('aria-checked', String(b.getAttribute('data-theme-mode') === mode));
+      b.tabIndex = b.getAttribute('data-theme-mode') === mode ? 0 : -1;
     }); });
   }
   function announce() {
@@ -68,7 +68,7 @@
   function choose(next, origin) {
     next = norm(next);
     if (next === mode) return;
-    try { localStorage.setItem(KEY, next); } catch (e) { /* storage blocked */ }
+    try { localStorage.setItem('theme', next); } catch (e) { /* storage blocked */ }
     apply(next, origin, false);
   }
 
@@ -76,24 +76,24 @@
     paint();
     sws.forEach(function (w) {
       w.addEventListener('click', function (e) {
-        var b = e.target.closest ? e.target.closest('[data-mode]') : null;
-        if (b) choose(b.getAttribute('data-mode'), b);
+        var b = e.target.closest ? e.target.closest('[data-theme-mode]') : null;
+        if (b) choose(b.getAttribute('data-theme-mode'), b);
       });
       w.addEventListener('keydown', function (e) {
         var step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
         if (!step) return;
-        var all = [].slice.call(w.querySelectorAll('[data-mode]'));
+        var all = [].slice.call(w.querySelectorAll('[data-theme-mode]'));
         var n = all[(all.indexOf(document.activeElement) + step + all.length) % all.length];
-        n.focus(); choose(n.getAttribute('data-mode'), n); e.preventDefault();
+        n.focus(); choose(n.getAttribute('data-theme-mode'), n); e.preventDefault();
       });
     });
     /* another page or tab on this origin changed the setting */
     root.addEventListener('storage', function (e) {
-      if (e.key !== KEY && e.key !== null) return;
+      if (e.key !== 'theme' && e.key !== null) return;
       apply(norm(e.key === null ? null : e.newValue), null, true);
     });
     /* system change while in auto */
-    var onSys = function () { if (mode === 'auto') apply('auto', visible() && visible().querySelector('[data-mode="auto"]'), false); };
+    var onSys = function () { if (mode === 'auto') apply('auto', visible() && visible().querySelector('[data-theme-mode="auto"]'), false); };
     if (mq.addEventListener) mq.addEventListener('change', onSys); else if (mq.addListener) mq.addListener(onSys);
     announce();
   }

@@ -2,14 +2,15 @@
  * app.js - the small runtime every other script plugs into.
  *
  * Design: ONE requestAnimationFrame loop drives everything (hero soup, the
- * five stage illustrations, membranes, background plankton). Each piece
+ * stage illustrations, membranes, background plankton). Each piece
  * registers a "ticker" { el, step(dt), draw(), stepAlways, resize() }:
  *   - draw() only runs while the ticker's element is on screen (IntersectionObserver);
  *   - step() runs for visible tickers, and always for `stepAlways` ones (the
  *     soup's cheap logic keeps running offscreen so charts and the lineage
  *     tree stay alive, only its drawing stops);
- *   - the loop stops entirely when the tab is hidden, the visitor pauses life,
- *     or motion is reduced, and then draws a single calm frame on demand.
+ *   - the loop stops entirely when the tab is hidden or Motion is off (the Motion
+ *     control, or the system's reduced-motion setting), and then draws a single
+ *     still frame on demand.
  *
  * Randomness helpers, the amino acid palette, the shared state and a tiny
  * event bus also live here. Scripts are classic (not ES modules) so the page
@@ -84,23 +85,24 @@
 
   /* ---------- state and bus ---------- */
   const mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  A.state = { paused: false, calm: !!(mq && mq.matches), temp: 300, ph: 7 };
+  /* calm = Motion is off (the single JS gate for every loop and animation); fx = Effects on (the decorative extras).
+   * controls.js owns both and sets them from the four symbol buttons. */
+  A.state = { calm: !!(mq && mq.matches), fx: true, temp: 300, ph: 7 };
   const handlers = {};
   A.bus = {
     on(name, fn) { (handlers[name] = handlers[name] || []).push(fn); },
     emit(name, data) { (handlers[name] || []).forEach((fn) => fn(data)); },
   };
   const root = document.documentElement;
-  A.frozen = () => A.state.paused || A.state.calm;
+  A.frozen = () => A.state.calm;
   function applyMotion() {
-    root.classList.toggle('paused', A.state.paused);
-    root.classList.toggle('calm', A.state.calm);
+    root.setAttribute('data-motion', A.state.calm ? 'off' : 'on');
+    root.setAttribute('data-fx', A.state.fx ? 'on' : 'off');
     A.bus.emit('motion', A.state);
     if (A.frozen()) A.loop.redraw(); else A.loop.start();
   }
-  A.setPaused = (b) => { A.state.paused = !!b; applyMotion(); };
   A.setCalm = (b) => { A.state.calm = !!b; applyMotion(); };
-  if (mq && mq.addEventListener) mq.addEventListener('change', (e) => A.setCalm(e.matches));
+  A.setFx = (b) => { A.state.fx = !!b; applyMotion(); };
 
   /* ---------- the one loop ---------- */
   const tickers = [];
@@ -132,8 +134,11 @@
       if (t.visible || t.stepAlways) { if (t.step) t.step(dt, clock); }
       if (t.visible && t.draw) t.draw();
     }
-    raf = requestAnimationFrame(frame);
+    raf = A.nextFrame(frame);
   }
+
+  /* One-shot next-frame callback for scroll-driven work (fx.js): this file owns every requestAnimationFrame call. */
+  A.nextFrame = (fn) => requestAnimationFrame(fn);
 
   A.loop = {
     add(t) {
@@ -142,8 +147,8 @@
       tickers.push(t);
       return t;
     },
-    start() { if (!raf && !A.frozen() && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(frame); } },
-    redraw() { // one still frame for every visible ticker (paused / calm mode)
+    start() { if (!raf && !A.frozen() && !document.hidden) { last = performance.now(); raf = A.nextFrame(frame); } },
+    redraw() { // one still frame for every visible ticker (Motion off)
       tickers.forEach((t) => { if (t.visible && t.draw) t.draw(); });
     },
     resize() { tickers.forEach((t) => t.resize && t.resize()); if (A.frozen()) A.loop.redraw(); },

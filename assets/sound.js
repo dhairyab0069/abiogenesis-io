@@ -1,24 +1,24 @@
 /*
- * sound.js - small synthesized sound effects, off until the visitor turns them on.
+ * sound.js - small synthesized sound effects, on by default (the Sound control mutes them).
  *
  * Everything is made on the fly with the Web Audio API (oscillators and
  * filtered noise), so there are no audio files and no requests. The sounds
  * follow the soup through the shared event bus: each kind of event in the
  * lab notebook has its own voice, the controls and the stage pictures have
  * theirs, and METHINKS emerging gets a chime. Browsers only allow audio after
- * a click, so the context is created when the visitor presses "Sound".
- * Nothing plays while life is paused, motion is reduced, or the tab is hidden.
+ * a gesture, so the context is created and resumed at the first pointer, key or
+ * touch (the intro plays silent until then). Nothing plays while the tab is hidden.
+ * The soup only makes events while Motion is on, so it is silent when still.
  */
 (function () {
   'use strict';
   const A = (window.Abio = window.Abio || {});
   const $ = (id) => document.getElementById(id);
-  const KEY = 'abio-sound';
   const MAX_VOICES = 24;
   const PENTA = [0, 2, 4, 7, 9]; // major pentatonic: any pick sounds pleasant
 
   let ctx = null, master = null, noiseBuf = null;
-  let on = false, voices = 0, soupSeen = true;
+  let on = true, voices = 0, soupSeen = true;
   const lastAt = {};
 
   const hz = (note) => 261.63 * Math.pow(2, note / 12); // note 0 = middle C
@@ -41,8 +41,8 @@
     return true;
   }
 
-  /* may a sound play right now? `force` skips the pause check (for the pause button itself) */
-  const ready = (force) => on && ctx && ctx.state === 'running' && !document.hidden && !A.state.calm && (force || !A.state.paused);
+  /* may a sound play right now? */
+  const ready = () => on && ctx && ctx.state === 'running' && !document.hidden;
   const quiet = (kind, gap) => { // per-kind rate limit
     const now = performance.now();
     if (now - (lastAt[kind] || 0) < gap) return true;
@@ -117,8 +117,6 @@
       });
     },
     tick(v) { tone({ f: 260 + v * 700, type: 'triangle', dur: 0.05, gain: 0.05, attack: 0.003 }); },
-    pause() { tone({ f: 520, to: 260, dur: 0.22, gain: 0.08 }); },
-    resume() { tone({ f: 260, to: 520, dur: 0.22, gain: 0.08 }); },
     natural() { tone({ f: 196, type: 'triangle', dur: 0.4, gain: 0.1 }); tone({ f: 294, dur: 0.4, gain: 0.05 }); },
     forced() { tone({ f: 330, type: 'square', dur: 0.14, gain: 0.04, attack: 0.002 }); hiss({ type: 'highpass', f: 3500, gain: 0.07, dur: 0.05 }); },
     pick(id) { tone({ f: hz(PENTA[id % 5] + 12 * (1 + (id % 2))), dur: 0.16, gain: 0.07 }); },
@@ -127,10 +125,11 @@
     themeLight() { tone({ f: hz(12), dur: 0.5, gain: 0.05, attack: 0.02 }); tone({ f: hz(19), dur: 0.6, gain: 0.04, at: 0.07, attack: 0.02 }); tone({ f: hz(24), dur: 0.7, gain: 0.025, at: 0.14, attack: 0.02 }); }, // sunlight on water
     themeDark() { tone({ f: hz(7), to: hz(0), dur: 0.5, gain: 0.06, attack: 0.03 }); hiss({ type: 'lowpass', f: 500, gain: 0.04, dur: 0.3 }); },       // sinking below the surface
     on() { tone({ f: hz(0), dur: 0.18, gain: 0.07 }); tone({ f: hz(7), dur: 0.26, gain: 0.07, at: 0.1 }); },
+    off() { tone({ f: hz(7), dur: 0.18, gain: 0.07 }); tone({ f: hz(0), dur: 0.26, gain: 0.07, at: 0.1 }); },
   };
 
-  function play(name, arg, force) {
-    if (!ready(force)) return;
+  function play(name, arg) {
+    if (!ready()) return;
     try { fx[name](arg); } catch (_) { /* audio must never break the page */ }
   }
 
@@ -156,12 +155,6 @@
     }));
     $('sel-natural').addEventListener('click', () => play('natural'));
     $('sel-forced').addEventListener('click', () => play('forced'));
-    let wasPaused = A.state.paused;
-    A.bus.on('motion', (s) => {
-      if (s.paused === wasPaused) return;
-      wasPaused = s.paused;
-      play(s.paused ? 'pause' : 'resume', null, true);
-    });
     $('lin-strip').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) play('pick', +b.dataset.id); });
     $('lin-svg').addEventListener('click', (e) => { const g = e.target.closest('.node'); if (g) play('pick', +g.dataset.id); });
     $('s6').addEventListener('pointerdown', () => play('ping'));
@@ -174,24 +167,16 @@
     }
   }
 
-  function wireToggle() {
-    const b = $('btn-sound'), lbl = b.querySelector('.lbl');
-    const show = () => { b.setAttribute('aria-pressed', String(on)); lbl.textContent = on ? 'Sound on' : 'Sound off'; };
-    const save = () => { try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (_) { /* storage blocked */ } };
-    const wake = () => { if (on && ensure() && ctx.state === 'suspended') ctx.resume().catch(() => {}); };
-    try { on = localStorage.getItem(KEY) === '1'; } catch (_) { on = false; }
-    show();
-    if (on) ['pointerdown', 'keydown'].forEach((n) => window.addEventListener(n, wake, { once: true })); // remembered choice: start at the first gesture
-    b.addEventListener('click', () => {
-      on = !on; show(); save();
-      if (!on) return;
-      if (!ensure()) { on = false; show(); lbl.textContent = 'No audio here'; return; }
-      ctx.resume().then(() => play('on')).catch(() => {});
-    });
+  /* Audio unlocks at the first pointer, key or touch (no autoplay): create and resume the context then. */
+  function wireUnlock() {
+    const wake = () => { if (ensure() && ctx.state === 'suspended') ctx.resume().catch(() => {}); };
+    ['pointerdown', 'keydown', 'touchstart'].forEach((n) => window.addEventListener(n, wake, { once: true, capture: true }));
     document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
+    A.sound.wake = wake;
   }
 
-  function boot() { wireToggle(); wireSoup(); wireControls(); }
+  function boot() { wireUnlock(); wireSoup(); wireControls(); }
+  /* controls.js drives setEnabled (the Sound button and Quiet everything) */
+  A.sound = { play, setEnabled(b) { on = !!b; if (on && ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); } };
   boot();
-  A.sound = { play };
 })();

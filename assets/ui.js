@@ -4,7 +4,7 @@
  *
  * Boot order matters: the notebook listens to the bus BEFORE the soup is
  * created (the soup pre-warms and logs events while doing so), and
- * A.setPaused(false) at the end starts the shared loop (or draws one still
+ * A.setCalm() at the end starts the shared loop (or draws one still
  * frame when motion is reduced).
  */
 (function () {
@@ -105,16 +105,7 @@
     $('btn-drop').addEventListener('click', () => view.drop());
     $('btn-plant').addEventListener('click', () => view.plant());
 
-    const bp = $('btn-pause'), bc = $('btn-calm');
-    bp.addEventListener('click', () => A.setPaused(!A.state.paused));
-    bc.addEventListener('click', () => A.setCalm(!A.state.calm));
-    A.bus.on('motion', (s) => {
-      bp.setAttribute('aria-pressed', String(s.paused));
-      bp.querySelector('.lbl').textContent = s.paused ? 'Resume life' : 'Pause life';
-      bp.disabled = s.calm;
-      bc.setAttribute('aria-pressed', String(s.calm));
-      if (s.calm) { const i = $('intro'); if (i) i.remove(); }
-    });
+    A.bus.on('motion', (s) => { if (s.calm) { const i = $('intro'); if (i) i.remove(); } });
 
     const nat = $('sel-natural'), frc = $('sel-forced');
     const setSel = (m) => { nat.setAttribute('aria-pressed', String(m === 'natural')); frc.setAttribute('aria-pressed', String(m === 'forced')); stages.s6.setMode(m); };
@@ -185,7 +176,7 @@
     controls(view, stages);
     A.initFx();
     platform();
-    A.setPaused(false); // applies classes and starts the loop (or one calm frame)
+    A.setCalm(A.state.calm); // applies the attributes and starts the loop (or draws one still frame)
     intro();
   }
   boot();

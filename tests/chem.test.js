@@ -116,5 +116,28 @@ console.log('soup: ' + JSON.stringify(soup.counts) + ', alive ' + soup.chains.le
   const early = html.indexOf("localStorage.getItem('theme')");
   assert.ok(early > 0 && early < html.indexOf('rel="stylesheet"'), 'early theme script must precede the stylesheet');
   assert.ok(html.includes('role="radiogroup" aria-label="Color theme"'));
-  assert.strictEqual((html.match(/data-mode="(light|dark|auto)"/g) || []).length, 3);
+  assert.strictEqual((html.match(/data-theme-mode="(light|dark|auto)"/g) || []).length, 3);
 }
+
+// Hygiene: the four symbol controls exist and default on, new versioned keys, quiet restores, no external requests.
+{
+  const fs = require('fs'), path = require('path');
+  const root = path.join(__dirname, '..'), html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  for (const id of ['sound', 'motion', 'fx', 'quiet']) {
+    assert.ok(new RegExp('id="dw-' + id + '"[^>]*aria-pressed="' + (id === 'quiet' ? 'false' : 'true') + '"').test(html), 'control ' + id);
+  }
+  const ctl = require('../assets/controls.js');
+  assert.deepStrictEqual(ctl.resolveDefaults({}, false), { sound: true, motion: true, fx: true });
+  assert.strictEqual(ctl.resolveDefaults({ motion: 'off' }, false).motion, false);
+  assert.strictEqual(ctl.resolveDefaults({}, true).motion, false, 'reduced motion starts motion off');
+  const q = ctl.quietStep({ sound: true, motion: true, fx: false }, null, false);
+  assert.deepStrictEqual(q.next, { sound: false, motion: false, fx: false });
+  assert.deepStrictEqual(ctl.quietStep(q.next, q.prev, false).next, { sound: true, motion: true, fx: false }, 'quiet restores exactly');
+  assert.ok(/keyPrefix = 'abio2'/.test(fs.readFileSync(path.join(root, 'assets', 'controls.js'), 'utf8')));
+  const files = ['index.html'].concat(fs.readdirSync(path.join(root, 'assets')).filter((f) => /\.(js|css)$/.test(f)).map((f) => 'assets/' + f));
+  files.forEach((f) => {
+    const t = fs.readFileSync(path.join(root, f), 'utf8').replace(/<link rel="canonical"[^>]*>|<meta (property|name)="(og|twitter):[^>]*>/g, '');
+    assert.ok(!/<(script|img|iframe)[^>]*src=["']https?:\/\/|<link[^>]*href=["']https?:\/\/|url\(["']?https?:|fetch\(["']https?:/.test(t), 'external request in ' + f);
+  });
+}
+console.log('controls ok');

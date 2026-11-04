@@ -238,10 +238,10 @@
           const x0 = (i % cols) * cw + pad, y0 = Math.floor(i / cols) * ch + pad, pw = cw - pad * 2, ph = ch - pad * 2;
           ctx.fillStyle = A.pal.panel; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 4, y0 - 4, pw + 8, ph + 8, 14) : ctx.rect(x0, y0, pw, ph); ctx.fill();
           ctx.font = '600 11px ' + FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-          if (i === 3) { // not buildable yet: honest placeholder
+          if (i === 3) { // the app counts strands here; this page's soup has none, so say so
             ctx.fillStyle = A.ink(0.5); ctx.fillText('replicators', x0 + 4, y0 + 12);
             ctx.setLineDash([4, 5]); ctx.strokeStyle = A.ink(0.35); ctx.beginPath(); ctx.moveTo(x0, y0 + ph * 0.65); ctx.lineTo(x0 + pw, y0 + ph * 0.65); ctx.stroke(); ctx.setLineDash([]);
-            ctx.fillText('planned: needs Stage 3 chemistry', x0 + 4, y0 + ph - 4);
+            ctx.fillText('in the app: needs Stage 3 strands', x0 + 4, y0 + ph - 4);
             continue;
           }
           const d = defs[i], data = H[d.k];

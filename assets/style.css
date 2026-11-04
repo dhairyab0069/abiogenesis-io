@@ -6,8 +6,8 @@
  * Motion lives in a few places: blob wobble (border-radius keyframes on
  * pseudo-elements, each with its own random duration and phase set by ui.js),
  * scroll reveals (a blob wipe from a random origin), and the canvases. All CSS
- * motion is removed by html.calm (the "Reduce motion" button or the OS
- * setting); html.paused freezes it (the "Pause life" button).
+ * motion is removed by html[data-motion="off"] (the Motion control or the OS
+ * setting); html[data-fx="off"] (the Effects control) hides the decorative extras.
  * System fonts only.
  */
 :root, :root[data-theme="dark"] {
@@ -132,12 +132,20 @@ main, .foot { position: relative; z-index: 1; }
 .bar nav a { color: var(--ink); text-decoration: none; padding: .35rem .7rem; border-radius: 999px; font-size: .9rem; font-weight: 600; }
 .bar nav a:hover { background: var(--hover); }
 .dock { position: fixed; right: .8rem; bottom: .8rem; z-index: 50; display: flex; gap: .3rem; padding: .25rem; }
-.dock button { font: 600 .85rem var(--font); color: var(--ink); background: transparent; border: 0; padding: .5rem .85rem; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: .45rem; min-height: 40px; }
-.dock button:hover { background: var(--hover); }
-.dock button[aria-pressed="true"] { background: var(--pressed-bg); color: var(--pressed-ink); }
-.dock button:disabled { opacity: .45; cursor: default; }
-.dock .dot { width: .6rem; height: .6rem; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
-.dock [aria-pressed="true"] .dot { background: var(--gold); box-shadow: none; }
+/* the four symbol controls: round 44px targets, state shown by fill and glyph (slash, pause bars), not colour alone */
+.dw-controls { display: flex; align-items: center; gap: .2rem; }
+.dw-ico { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; border: 1px solid transparent; background: transparent; color: var(--ink); cursor: pointer; transition: background .25s, transform .12s, border-color .25s; }
+.dw-ico .i { width: 24px; height: 24px; }
+.dw-ico:hover { background: var(--hover); }
+.dw-ico:active { transform: scale(.92); }
+.dw-ico:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.dw-ico[aria-pressed="true"] { background: var(--pressed-bg); color: var(--pressed-ink); border-color: var(--line); }
+.dw-ico[aria-pressed="false"] { opacity: .8; }
+#dw-quiet[aria-pressed="false"] { opacity: 1; }
+.dw-ico .off-only { display: none; }
+.dw-ico[aria-pressed="false"] .on-only { display: none; }
+.dw-ico[aria-pressed="false"] .off-only { display: inline; }
+#dw-quiet .on-only, #dw-quiet .off-only { display: inline; }
 
 /* theme switch: three icon-only radios (light, dark, auto) */
 .theme-switch{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);position:relative;display:inline-flex;padding:2px;border:1px solid var(--line);border-radius:999px;background:var(--glass);flex:none}
@@ -325,7 +333,6 @@ input[type="range"] { width: 100%; height: 30px; accent-color: var(--accent); ba
   .sliders { grid-template-columns: 1fr; }
   .hud .v { font-size: 1.15rem; }
   .fig canvas { aspect-ratio: 4 / 3; } #s4 { aspect-ratio: 1 / 1; }
-  .dock button { padding: .45rem .7rem; font-size: .8rem; }
   .foot { padding-bottom: 5.5rem; }
   @keyframes wob {
     0% { border-radius: 34px 44px 32px 48px / 40px 30px 46px 32px; }
@@ -334,11 +341,14 @@ input[type="range"] { width: 100%; height: 30px; accent-color: var(--accent); ba
   }
 }
 
-/* ---------- calm and paused ---------- */
-.calm .theme-switch::before { transition: none !important; }
-.calm *, .calm *::before, .calm *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-.calm .reveal { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }
-.paused *, .paused *::before, .paused *::after { animation-play-state: paused !important; }
+/* ---------- Motion off and Effects off ---------- */
+html[data-motion="off"] .theme-switch::before { transition: none !important; }
+html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+html[data-motion="off"] .reveal { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }
+html[data-motion="off"] #intro { display: none; }
+/* Effects off: the decorative layers go; content, readouts and the soup's own feedback stay */
+html[data-fx="off"] .depth, html[data-fx="off"] svg.membrane { display: none; }
+html[data-fx="off"] .blob::after { background: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .js .reveal { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }

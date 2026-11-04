@@ -1,6 +1,7 @@
 /*
  * fx.js - the scenery: depth layers, drifting plankton, the membranes that
  * stretch between sections, and the tendril that grows down the stage journey.
+ * All of it is decoration: the Effects control (A.state.fx) switches it off, Motion stops it moving.
  *
  * Scroll is the only input that is handled outside the shared loop: parallax
  * and the tendril follow the page directly (and are switched off in calm
@@ -59,6 +60,7 @@
     const S = Array.from({ length: 46 }, () => ({ x: Math.random(), y: Math.random(), z: [0.25, 0.55, 1][A.irnd(0, 2)], vx: 0, vy: 0, h: hues[A.irnd(0, 3)], r: A.rnd(5, 16) }));
     A.loop.add({
       step(dt) {
+        if (!A.state.fx) return;
         for (const s of S) {
           s.vx = s.vx * 0.97 + A.gauss() * 0.0009; s.vy = s.vy * 0.97 + A.gauss() * 0.0009 - 0.0004 * s.z;
           s.x = (s.x + s.vx * dt * 60 * s.z + 1) % 1; s.y = (s.y + s.vy * dt * 60 * s.z + 1) % 1;
@@ -67,6 +69,7 @@
       draw() {
         const ctx = g.ctx;
         ctx.clearRect(0, 0, g.w, g.h);
+        if (!A.state.fx) return;   // Effects off: no plankton
         ctx.globalCompositeOperation = A.pal.blend;
         for (const s of S) {
           const y = (((s.y * g.h - scroll.y * s.z * 0.35) % g.h) + g.h) % g.h, size = s.r * (0.6 + s.z);
@@ -120,21 +123,22 @@
       const now = performance.now(), dt = Math.max(0.008, (now - lastT) / 1000); lastT = now;
       const y = window.scrollY;
       scroll.v += ((y - scroll.last) / dt - scroll.v) * 0.3; scroll.last = y; scroll.y = y;
-      scroll.stretch = A.state.calm ? 0 : A.clamp(Math.abs(scroll.v) * 0.025, 0, 38);
-      if (!A.state.calm) {
+      const fancy = !A.state.calm && A.state.fx;   // parallax and the stretching membranes are Motion and Effects
+      scroll.stretch = fancy ? A.clamp(Math.abs(scroll.v) * 0.025, 0, 38) : 0;
+      if (fancy) {
         layers[0] && (layers[0].style.transform = 'translate3d(0,' + (-y * 0.06).toFixed(1) + 'px,0)');
         layers[1] && (layers[1].style.transform = 'translate3d(0,' + (-y * 0.15).toFixed(1) + 'px,0)');
         if (copy) { copy.style.transform = 'translate3d(0,' + (y * 0.2).toFixed(1) + 'px,0)'; copy.style.opacity = String(A.clamp(1 - y / (window.innerHeight * 0.7), 0, 1)); }
       }
       jr.update();
-      if (!A.state.calm && Math.abs(scroll.v) > 20) request(); // keep easing the stretch back to rest
+      if (fancy && Math.abs(scroll.v) > 20) request(); // keep easing the stretch back to rest
       else scroll.stretch = 0;
       if (A.frozen()) A.loop.redraw();
     }
-    function request() { if (!pending) { pending = true; requestAnimationFrame(frame); } }
+    function request() { if (!pending) { pending = true; A.nextFrame(frame); } }
     window.addEventListener('scroll', request, { passive: true });
     window.addEventListener('resize', () => { A.bus.emit('relayout'); request(); });
-    A.bus.on('motion', () => { if (A.state.calm) { layers.forEach((l) => (l.style.transform = '')); if (copy) { copy.style.transform = ''; copy.style.opacity = ''; } } request(); });
+    A.bus.on('motion', () => { if (A.state.calm || !A.state.fx) { layers.forEach((l) => (l.style.transform = '')); if (copy) { copy.style.transform = ''; copy.style.opacity = ''; } } request(); });
     request();
   };
 })();

@@ -31,6 +31,7 @@
     const buildSprites = () => Object.keys(A.letterHue).forEach((c) => { sprites[c] = A.glowSprite(A.letterHue[c], 85, 60); });
     buildSprites(); A.bus.on('theme', buildSprites);
     let hover = null, par = { x: 0, y: 0 }, lastHud = 0, ptrPrev = null;
+    const ripples = []; // Effects: a ring that spreads from where you tap (decorative; the dropped chain is the real feedback)
 
     function local(e) {
       const r = cv.getBoundingClientRect();
@@ -60,12 +61,13 @@
       const quick = downAt && p.t - downAt.t < 260 && Math.hypot(p.x - downAt.x, p.y - downAt.y) < 12;
       ptr.down = false;
       if (e.pointerType !== 'mouse') ptr.on = false;
-      if (quick) { soup.userSpawn(p.x, p.y); if (A.frozen()) A.loop.redraw(); }
+      if (quick) { soup.userSpawn(p.x, p.y); if (A.state.fx && !A.frozen()) { ripples.push({ x: p.x, y: p.y, t: 0 }); if (ripples.length > 6) ripples.shift(); } if (A.frozen()) A.loop.redraw(); }
       downAt = null;
     });
 
     /* ---------- drawing ---------- */
     function glow(ctx, t) {
+      if (!A.state.fx) return;   // Effects off: no drifting colour wash
       const hue = A.tintHue(A.state.ph), R = Math.max(g.w, g.h) * 0.55;
       for (let i = 0; i < 3; i++) {
         const x = g.w * (0.5 + 0.38 * Math.sin(t * 0.045 + i * 2.1)), y = g.h * (0.5 + 0.32 * Math.cos(t * 0.037 + i * 1.7));
@@ -204,6 +206,13 @@
         const s = 22 * (1 - gh.t / 1.4 * 0.4); ctx.globalAlpha = 0.8 * (1 - gh.t / 1.4);
         ctx.drawImage(spr(gh.hue, 85, 60), gh.x - s / 2, gh.y - s / 2, s, s);
       }
+      for (const r of ripples) { // tap ripples (Effects)
+        const p = r.t / 1.2, rad = 10 + 90 * ease(p);
+        ctx.globalAlpha = (1 - p) * 0.5; ctx.lineWidth = 1.5; ctx.strokeStyle = 'hsl(190 90% ' + A.pal.ringL + '%)';
+        ctx.beginPath(); ctx.arc(r.x, r.y, rad, 0, 6.283); ctx.stroke();
+        ctx.beginPath(); ctx.arc(r.x, r.y, rad * 0.62, 0, 6.283); ctx.stroke();
+      }
+      if (!A.state.fx) { ctx.globalAlpha = 1; return; }   // Effects off: no blooms, lightning bolts, screen flash, pointer halo or stirring arcs
       for (const b of f.blooms) { // a quiet bloom of light for METHINKS
         const p = b.t / 6, s = (b.small ? 160 : 90) + (b.small ? 200 : 700) * ease(p);
         ctx.globalAlpha = 0.55 * (1 - p) * (1 - p);
@@ -248,6 +257,7 @@
       el: cv, stepAlways: true,
       step(dt) {
         soup.step(dt);
+        for (let i = ripples.length - 1; i >= 0; i--) { ripples[i].t += dt; if (ripples[i].t > 1.2) ripples.splice(i, 1); }
         ptr.dx *= 0.92; ptr.dy *= 0.92;
         const tx = ptr.on ? ptr.x - g.w / 2 : 0, ty = ptr.on ? ptr.y - g.h / 2 : 0;
         par.x += (tx * 0.08 - par.x) * 0.05; par.y += (ty * 0.08 - par.y) * 0.05;
