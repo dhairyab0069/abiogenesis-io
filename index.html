@@ -21,6 +21,17 @@
 <meta name="twitter:description" content="A small Rust simulation of life arising from non-living matter.">
 <meta name="twitter:image" content="https://dhairyab0069.github.io/abiogenesis-io/assets/og-image.png">
 <script>document.documentElement.classList.add('js');</script>
+<script>
+// Shared theme (localStorage 'theme': light | dark | auto). Set before first paint so there is no flash.
+(function () {
+  var m;
+  try { m = localStorage.getItem('theme'); } catch (e) {}
+  if (m !== 'light' && m !== 'dark') m = 'auto';
+  var t = m === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : m;
+  var r = document.documentElement;
+  r.setAttribute('data-theme-mode', m); r.setAttribute('data-theme', t); r.style.colorScheme = t;
+})();
+</script>
 <link rel="stylesheet" href="assets/style.css">
 <script defer src="assets/chem.js"></script>
 <script defer src="assets/app.js"></script>
@@ -31,6 +42,7 @@
 <script defer src="assets/fx.js"></script>
 <script defer src="assets/sound.js"></script>
 <script defer src="assets/ui.js"></script>
+<script defer src="assets/theme.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -61,10 +73,15 @@
   </nav>
 </header>
 
-<div class="dock" role="group" aria-label="Motion and sound controls">
+<div class="dock" role="group" aria-label="Theme, motion and sound controls">
   <button type="button" id="btn-pause" aria-pressed="false"><span class="dot" aria-hidden="true"></span><span class="lbl">Pause life</span></button>
   <button type="button" id="btn-calm" aria-pressed="false"><span class="lbl">Reduce motion</span></button>
   <button type="button" id="btn-sound" aria-pressed="false"><span class="lbl">Sound off</span></button>
+  <div class="theme-switch" role="radiogroup" aria-label="Color theme">
+  <button type="button" role="radio" aria-checked="false" data-mode="light" aria-label="Light theme" title="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg></button>
+  <button type="button" role="radio" aria-checked="false" data-mode="dark" aria-label="Dark theme" title="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button>
+  <button type="button" role="radio" aria-checked="false" data-mode="auto" aria-label="Match system theme" title="Auto (match system)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+  </div>
 </div>
 
 <main id="main">

@@ -17,7 +17,8 @@
   const A = window.Abio, C = A.chem;
   const TAU = 6.283185307;
   const ease = (p) => 1 - Math.pow(1 - p, 3);
-  const hsl = (h, s, l, a) => 'hsla(' + h + ',' + s + '%,' + l + '%,' + (a == null ? 1 : a) + ')';
+  const hsl = (h, s, l, a) => 'hsla(' + h + ',' + s + '%,' + A.L(l) + '%,' + (a == null ? 1 : a) + ')';
+  const hslRaw = (h, s, l, a) => 'hsla(' + h + ',' + s + '%,' + l + '%,' + (a == null ? 1 : a) + ')';
   const FONT = '"Avenir Next", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif';
 
   /* Boilerplate: size, warm up, register. `api` has step(dt), draw(ctx, w, h). */
@@ -77,12 +78,12 @@
             const x = x0 + i * (ts + gap), s = t.s * ts, hue = A.letterHue[t.ch] || 180;
             ctx.fillStyle = hsl(hue, 80, 55, 0.88);
             ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x + (ts - s) / 2, ys[ri] - s / 2, s, s, s * 0.32) : ctx.rect(x, ys[ri] - s / 2, s, s); ctx.fill();
-            if (ri === 2 && t.from) { ctx.strokeStyle = t.from === 1 ? '#29dded' : '#e648c8'; ctx.lineWidth = 2; ctx.stroke(); }
+            if (ri === 2 && t.from) { ctx.strokeStyle = t.from === 1 ? A.pal.from1 : A.pal.from2; ctx.lineWidth = 2; ctx.stroke(); }
             if (t.f > 0) { ctx.fillStyle = 'rgba(255,255,255,' + t.f * 0.85 + ')'; ctx.fill(); }
-            if (s > ts * 0.5) { ctx.fillStyle = '#04141a'; ctx.fillText(t.ch, x + ts / 2, ys[ri] + 1); }
+            if (s > ts * 0.5) { ctx.fillStyle = A.pal.letter; ctx.fillText(t.ch, x + ts / 2, ys[ri] + 1); }
           });
         });
-        ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(190,240,255,0.7)'; ctx.font = '600 12px ' + FONT;
+        ctx.textAlign = 'left'; ctx.fillStyle = A.ink(0.7); ctx.font = '600 12px ' + FONT;
         ctx.fillText('parent A', 14, h * 0.17 - ts * 0.9); ctx.fillText('parent B', 14, h * 0.42 - ts * 0.9);
         ctx.fillText('child' + (label ? '  (last event: ' + label + ')' : ''), 14, h * 0.72 - ts * 0.9);
       },
@@ -122,7 +123,7 @@
         const ys = (0.9 - level * 0.5) * h, conc = 1 - A.clamp(level / 0.45, 0, 1);
         // sun, stronger as the pool dries
         const sun = ctx.createRadialGradient(w * 0.85, h * 0.12, 0, w * 0.85, h * 0.12, h * 0.55);
-        sun.addColorStop(0, hsl(46, 95, 60, 0.15 + 0.4 * conc)); sun.addColorStop(1, hsl(46, 95, 60, 0));
+        sun.addColorStop(0, hslRaw(46, 95, 60, 0.15 + 0.4 * conc)); sun.addColorStop(1, hslRaw(46, 95, 60, 0));
         ctx.fillStyle = sun; ctx.fillRect(0, 0, w, h);
         ctx.beginPath(); // basin
         for (let i = 0; i <= 40; i++) { const u = i / 20 - 1; ctx.lineTo(w * (0.5 + u * 0.5), bowl(u, h)); }
@@ -132,16 +133,16 @@
         for (let i = 0; i <= 40; i++) { const u = i / 20 - 1; ctx.lineTo(w * (0.5 + u * 0.5), bowl(u, h)); }
         ctx.lineTo(w, 0); ctx.closePath(); ctx.clip();
         const wg = ctx.createLinearGradient(0, ys, 0, h);
-        wg.addColorStop(0, hsl(188, 80, 50, 0.38)); wg.addColorStop(1, hsl(200, 80, 30, 0.6));
+        const W = A.pal.water; wg.addColorStop(0, hslRaw.apply(null, W[0])); wg.addColorStop(1, hslRaw.apply(null, W[1]));
         ctx.fillStyle = wg; ctx.beginPath(); ctx.moveTo(0, h);
         for (let x = 0; x <= w; x += 8) ctx.lineTo(x, ys + Math.sin(x * 0.05 + t * 1.3) * 2 + Math.sin(x * 0.13 - t * 0.9) * 1.2);
         ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
         ctx.restore();
         if (rain > 0) { // raindrops while refilling
-          ctx.strokeStyle = 'rgba(190,240,255,0.5)'; ctx.lineWidth = 1.2;
+          ctx.strokeStyle = A.pal.rain; ctx.lineWidth = 1.2;
           for (let i = 0; i < 9; i++) { const x = (Math.sin(i * 91.3 + Math.floor(t * 6) * 7.7) * 0.5 + 0.5) * w, y = ((t * 3 + i * 0.37) % 1) * (ys); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 2, y + 9); ctx.stroke(); }
         }
-        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalCompositeOperation = A.pal.blend;
         for (const p of P) {
           const x = p.x * w, y = p.y * h, s = 12 + conc * 3;
           for (let b = 0; b < p.n; b++) {
@@ -157,7 +158,7 @@
           ctx.closePath(); ctx.fillStyle = hsl(320, 80, 60, 0.12 * cell); ctx.fill();
           ctx.lineWidth = 2; ctx.strokeStyle = hsl(320, 85, 70, 0.7 * cell); ctx.stroke();
         }
-        ctx.fillStyle = 'rgba(190,240,255,0.75)'; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
+        ctx.fillStyle = A.ink(0.75); ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
         ctx.fillText(level < 0.2 ? 'dry spell: chains concentrate' : level > 0.7 ? 'wet: chains disperse' : 'in between', 14, 20);
       },
     }, 120);
@@ -209,10 +210,10 @@
           for (const s of [-0.28, 0.28]) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - Math.cos(ang + s) * 11, y - Math.sin(ang + s) * 11); ctx.stroke(); }
           ctx.fillStyle = hsl(320, 85, 62, 0.95); ctx.beginPath(); ctx.arc(x + dx * 1, y + dy * 1, 4.2, 0, TAU); ctx.fill();
         });
-        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalCompositeOperation = A.pal.blend;
         for (const m of M) { const s = 18; ctx.drawImage(A.glowSprite(m.h, 85, 60), m.x * w - s / 2, m.y * h - s / 2, s, s); }
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = 'rgba(190,240,255,0.75)'; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
+        ctx.fillStyle = A.ink(0.75); ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
         ctx.fillText(phase === 'drift' ? 'lipids drift apart' : phase === 'assemble' ? 'heads turn outward, tails hide' : phase === 'hold' ? 'a vesicle holds its molecules' : 'the membrane bursts', 14, 20);
       },
     }, 100);
@@ -235,16 +236,16 @@
         const cols = w > 460 ? 2 : 1, rows = Math.ceil(4 / cols), cw = w / cols, ch = h / rows, pad = 10;
         for (let i = 0; i < 4; i++) {
           const x0 = (i % cols) * cw + pad, y0 = Math.floor(i / cols) * ch + pad, pw = cw - pad * 2, ph = ch - pad * 2;
-          ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 4, y0 - 4, pw + 8, ph + 8, 14) : ctx.rect(x0, y0, pw, ph); ctx.fill();
+          ctx.fillStyle = A.pal.panel; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 4, y0 - 4, pw + 8, ph + 8, 14) : ctx.rect(x0, y0, pw, ph); ctx.fill();
           ctx.font = '600 11px ' + FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
           if (i === 3) { // not buildable yet: honest placeholder
-            ctx.fillStyle = 'rgba(190,240,255,0.5)'; ctx.fillText('replicators', x0 + 4, y0 + 12);
-            ctx.setLineDash([4, 5]); ctx.strokeStyle = 'rgba(190,240,255,0.35)'; ctx.beginPath(); ctx.moveTo(x0, y0 + ph * 0.65); ctx.lineTo(x0 + pw, y0 + ph * 0.65); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = A.ink(0.5); ctx.fillText('replicators', x0 + 4, y0 + 12);
+            ctx.setLineDash([4, 5]); ctx.strokeStyle = A.ink(0.35); ctx.beginPath(); ctx.moveTo(x0, y0 + ph * 0.65); ctx.lineTo(x0 + pw, y0 + ph * 0.65); ctx.stroke(); ctx.setLineDash([]);
             ctx.fillText('planned: needs Stage 3 chemistry', x0 + 4, y0 + ph - 4);
             continue;
           }
           const d = defs[i], data = H[d.k];
-          ctx.fillStyle = 'rgba(214,251,255,0.8)'; ctx.fillText(d.title, x0 + 4, y0 + 12);
+          ctx.fillStyle = A.inkStrong(0.8); ctx.fillText(d.title, x0 + 4, y0 + 12);
           if (data.length < 2) continue;
           let lo = Math.min.apply(null, data), hi = Math.max.apply(null, data);
           if (hi - lo < 0.5) { const m = (hi + lo) / 2; lo = m - 0.25; hi = m + 0.25; }
@@ -262,7 +263,7 @@
           ctx.strokeStyle = hsl(d.hue, 90, 68); ctx.lineWidth = 1.8; ctx.lineJoin = 'round'; ctx.stroke();
           const last = data[data.length - 1], lx = x0 + off + ((data.length - 1) / 119) * pw;
           ctx.fillStyle = hsl(d.hue, 90, 75); ctx.beginPath(); ctx.arc(lx, py(last), 3, 0, TAU); ctx.fill();
-          ctx.textAlign = 'right'; ctx.fillText(d.f(last), x0 + pw - 2, y0 + 12);
+          ctx.textAlign = 'right'; ctx.fillStyle = A.inkStrong(0.9); ctx.fillText(d.f(last), x0 + pw - 2, y0 + 12);
         }
         const now = performance.now();
         if (readout && now - lastTxt > 1000) {
@@ -370,7 +371,7 @@
       ctx.lineWidth = c.kind === 'euk' && phase === 2 ? 2.4 : 2; ctx.strokeStyle = hsl(c.hue, 85, 68, 0.88 * a); ctx.stroke();
       if (r < 6) return;
       if (c.kind === 'proto') { // molecules held inside the droplet
-        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalCompositeOperation = A.pal.blend;
         c.mols.forEach((mo) => { const s = Math.max(8, r * 0.34); ctx.globalAlpha = a; ctx.drawImage(A.glowSprite(mo.hue, 85, 60), c.x + Math.cos(mo.a + t * mo.sp) * mo.d * r - s / 2, c.y + Math.sin(mo.a + t * mo.sp) * mo.d * r - s / 2, s, s); });
         ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
         return;
@@ -403,11 +404,11 @@
           : phase === 1 ? (u < 2.2 ? 'a bigger cell meets a smaller one' : u < 3.8 ? 'it swallows the guest, which becomes the mitochondrion' : 'the DNA gets its own envelope: a nucleus')
           : (u < 7 ? 'cells divide and stay stuck together' : 'cells specialize: a body with different jobs');
         ctx.globalAlpha = Math.min(1, alpha + 0.3);
-        ctx.fillStyle = 'rgba(190,240,255,0.78)'; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
+        ctx.fillStyle = A.ink(0.78); ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
         ctx.fillText(note, 14, 20);
         STEPS.forEach((s, i) => { // which step we are on
           const x = 14 + i * Math.min(w / 3, 130), on = i === phase;
-          ctx.fillStyle = on ? hsl(46, 95, 64, 0.95) : 'rgba(190,240,255,0.35)';
+          ctx.fillStyle = on ? hsl(46, 95, 64, 0.95) : A.ink(0.35);
           ctx.beginPath(); ctx.arc(x + 4, h - 15, on ? 4 : 3, 0, TAU); ctx.fill();
           ctx.font = (on ? '700 ' : '500 ') + '11px ' + FONT; ctx.fillText(s, x + 13, h - 11);
         });
@@ -455,7 +456,7 @@
         const ox = dispOpt * w;
         ctx.setLineDash([5, 5]); ctx.strokeStyle = mode === 'forced' ? hsl(46, 95, 62, 0.95) : hsl(160, 90, 65, 0.8); ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(ox, 8); ctx.lineTo(ox, base + 4); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(190,240,255,0.78)'; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
+        ctx.fillStyle = A.ink(0.78); ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left';
         ctx.fillText(mode === 'natural' ? 'natural: a drifting world, the population follows' : 'forced: your target, hard selection', 12, h - 8);
         const now = performance.now();
         if (readout && now - lastTxt > 800) {

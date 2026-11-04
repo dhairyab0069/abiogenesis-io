@@ -124,6 +124,8 @@
     pick(id) { tone({ f: hz(PENTA[id % 5] + 12 * (1 + (id % 2))), dur: 0.16, gain: 0.07 }); },
     ping() { tone({ f: 880, dur: 0.5, gain: 0.07 }); tone({ f: 1320, dur: 0.3, gain: 0.03 }); },
     stage(n) { tone({ f: hz(PENTA[n % 5] + 12), type: 'triangle', dur: 0.8, gain: 0.06, attack: 0.03 }); tone({ f: hz(PENTA[n % 5] + 24), dur: 0.8, gain: 0.025, attack: 0.03 }); },
+    themeLight() { tone({ f: hz(12), dur: 0.5, gain: 0.05, attack: 0.02 }); tone({ f: hz(19), dur: 0.6, gain: 0.04, at: 0.07, attack: 0.02 }); tone({ f: hz(24), dur: 0.7, gain: 0.025, at: 0.14, attack: 0.02 }); }, // sunlight on water
+    themeDark() { tone({ f: hz(7), to: hz(0), dur: 0.5, gain: 0.06, attack: 0.03 }); hiss({ type: 'lowpass', f: 500, gain: 0.04, dur: 0.3 }); },       // sinking below the surface
     on() { tone({ f: hz(0), dur: 0.18, gain: 0.07 }); tone({ f: hz(7), dur: 0.26, gain: 0.07, at: 0.1 }); },
   };
 
@@ -191,4 +193,5 @@
 
   function boot() { wireToggle(); wireSoup(); wireControls(); }
   boot();
+  A.sound = { play };
 })();

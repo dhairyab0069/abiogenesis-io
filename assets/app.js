@@ -49,6 +49,39 @@
     return A.letterHue[seq[Math.floor(seq.length / 2)]] || 180;
   };
 
+  /* ---------- theme: dark water or a sunlit tide pool ---------- */
+  /* The page follows the shared light / dark / auto setting (theme.js sets data-theme on <html>
+   * and announces `themechange`). Everything that draws to a canvas or builds SVG in JS reads
+   * its colours from A.pal and A.L() at draw time, so a change only needs one redraw.
+   * Dark glows by adding light ('lighter'); a pale pool cannot, so light uses ordinary blending
+   * with darker, more saturated colours. */
+  const PALS = {
+    dark: {
+      light: false, blend: 'lighter', glow: [75, 45, 0.17], bonds: 'rgba(190,240,255,0.2)',
+      O: 'rgba(41,221,237,0.8)', H: 'rgba(205,245,255,0.62)', C: 'rgba(132,234,123,0.78)', H4: 'rgba(214,255,210,0.55)',
+      stringL: 65, mixL: 72, flash: '#fff', del: '#ff9ad8', letter: '#04141a', tag: 'rgba(4,22,28,0.78)', tagInk: '#d6fbff',
+      bolt: ['#29dded', '#bff8ff', '#ffffff'], screen: '#cfefff', screenA: 0.1, stir: '#84ea7b', ringL: 75,
+      from1: '#29dded', from2: '#e648c8', rain: 'rgba(190,240,255,0.5)', water: [[188, 80, 50, 0.38], [200, 80, 30, 0.6]],
+      panel: 'rgba(255,255,255,0.04)', plankton: 1, inkRGB: '190,240,255', inkGain: 1, inkFloor: 0, titleInk: '214,251,255', node: 'transparent',
+    },
+    light: {
+      light: true, blend: 'source-over', glow: [80, 62, 0.24], bonds: 'rgba(8,90,112,0.3)',
+      O: 'rgba(0,126,156,0.88)', H: 'rgba(52,142,166,0.7)', C: 'rgba(22,124,52,0.88)', H4: 'rgba(60,146,86,0.7)',
+      stringL: 32, mixL: 34, flash: '#08343f', del: '#b3126f', letter: '#ffffff', tag: 'rgba(4,40,50,0.86)', tagInk: '#e9fcff',
+      bolt: ['#00899f', '#1b7f90', '#06303a'], screen: '#00a0c0', screenA: 0.07, stir: '#1c8a3a', ringL: 40,
+      from1: '#00798f', from2: '#b0148a', rain: 'rgba(0,104,134,0.5)', water: [[188, 75, 62, 0.4], [200, 78, 40, 0.5]],
+      panel: 'rgba(6,56,68,0.05)', plankton: 0.7, inkRGB: '6,56,68', inkGain: 1.3, inkFloor: 0.75, titleInk: '4,40,50', node: 'rgba(6,56,68,0.55)',
+    },
+  };
+  const de = document.documentElement; // (tests stub a minimal document)
+  A.theme = de.getAttribute && de.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  A.pal = PALS[A.theme];
+  /* lightness: the dark palette is tuned to glow on near-black; on pale water the same hues go deeper */
+  A.L = (l) => (A.theme === 'light' ? Math.round(l * 0.6) : l);
+  /* text and hairlines drawn on the canvases, as rgba */
+  A.ink = (a) => 'rgba(' + A.pal.inkRGB + ',' + Math.min(1, Math.max(a * A.pal.inkGain, A.pal.inkFloor)).toFixed(2) + ')';
+  A.inkStrong = (a) => 'rgba(' + A.pal.titleInk + ',' + Math.min(1, Math.max(a * A.pal.inkGain, A.pal.inkFloor)).toFixed(2) + ')';
+
   /* ---------- state and bus ---------- */
   const mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   A.state = { paused: false, calm: !!(mq && mq.matches), temp: 300, ph: 7 };
@@ -119,6 +152,15 @@
   let rt = 0;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(A.loop.resize, 120); });
 
+  /* The shared theme changed (this page, another tab, or the system in auto): swap palettes and redraw. */
+  window.addEventListener('themechange', (e) => {
+    const t = (e.detail && e.detail.theme) || root.getAttribute('data-theme');
+    A.theme = t === 'light' ? 'light' : 'dark';
+    A.pal = PALS[A.theme];
+    A.bus.emit('theme', A.theme);
+    if (A.frozen()) A.loop.redraw();
+  });
+
   /* Canvas helper: size to its CSS box at a capped pixel ratio (<= 1.5). */
   A.fitCanvas = (cv) => {
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -132,18 +174,20 @@
 
   /* Glow sprite per colour, pre-rendered once so beads cost one drawImage. */
   A.glowSprite = (hue, sat, light) => {
-    const key = hue + '/' + sat + '/' + light;
+    const lt = A.theme === 'light';
+    const key = (lt ? 'L' : 'D') + hue + '/' + sat + '/' + light;
     A.glowSprite.cache = A.glowSprite.cache || {};
     if (A.glowSprite.cache[key]) return A.glowSprite.cache[key];
     const S = 64, c = document.createElement('canvas');
     c.width = c.height = S;
     const g = c.getContext('2d');
     const gr = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
-    gr.addColorStop(0, 'hsla(' + hue + ',' + sat + '%,94%,1)');
-    gr.addColorStop(0.16, 'hsla(' + hue + ',' + sat + '%,' + light + '%,1)');
-    gr.addColorStop(0.30, 'hsla(' + hue + ',' + sat + '%,' + light + '%,.92)');
-    gr.addColorStop(0.5, 'hsla(' + hue + ',' + sat + '%,' + light + '%,.22)');
-    gr.addColorStop(1, 'hsla(' + hue + ',' + sat + '%,' + light + '%,0)');
+    const body = lt ? Math.round(light * 0.62) : light, core = lt ? Math.min(70, body + 22) : 94, halo = lt ? 0.13 : 0.22;
+    gr.addColorStop(0, 'hsla(' + hue + ',' + sat + '%,' + core + '%,1)');
+    gr.addColorStop(0.16, 'hsla(' + hue + ',' + sat + '%,' + body + '%,1)');
+    gr.addColorStop(0.30, 'hsla(' + hue + ',' + sat + '%,' + body + '%,.92)');
+    gr.addColorStop(0.5, 'hsla(' + hue + ',' + sat + '%,' + body + '%,' + halo + ')');
+    gr.addColorStop(1, 'hsla(' + hue + ',' + sat + '%,' + body + '%,0)');
     g.fillStyle = gr;
     g.fillRect(0, 0, S, S);
     return (A.glowSprite.cache[key] = c);

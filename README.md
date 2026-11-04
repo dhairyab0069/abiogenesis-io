@@ -33,9 +33,20 @@ assets/lineage.js    the interactive lineage tree
 assets/fx.js         depth layers, plankton, membranes between sections, stage tendril
 assets/sound.js      synthesized sound effects (Web Audio, no files), off until "Sound" is pressed
 assets/ui.js         controls, lab notebook, reveals, intro, platform detection, boot
+assets/theme.js      light / dark / auto switch, shared across the owner's sites
 assets/style.css     styles
 tests/chem.test.js   Node tests: node tests/chem.test.js
 ```
+
+## Light, dark and auto
+
+The page follows one setting shared across all of dhairyab0069.github.io: `localStorage.theme` is `light`, `dark` or `auto`
+(absent means auto, which follows the system). The three-way switch in the bottom-right dock changes it, and a change made on
+any other page or tab applies here live. Dark is the original deep-water look. Light is a pale sunlit tide pool: aqua and foam,
+the soup's beads and molecules drawn darker with ordinary blending (the dark mode adds light instead), and the stage pictures,
+charts and lineage tree recoloured to match. An inline script in `<head>` sets the theme before first paint; the change plays a
+short circle reveal and a soft sound cue (when sound is on), and is instant when motion is reduced. Code: `assets/theme.js`
+(switch and sync), `A.pal` and `A.L()` in `assets/app.js` (canvas colours), tokens at the top of `assets/style.css`.
 
 ## Sound
 

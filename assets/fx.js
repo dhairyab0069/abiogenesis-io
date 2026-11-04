@@ -67,10 +67,10 @@
       draw() {
         const ctx = g.ctx;
         ctx.clearRect(0, 0, g.w, g.h);
-        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalCompositeOperation = A.pal.blend;
         for (const s of S) {
           const y = (((s.y * g.h - scroll.y * s.z * 0.35) % g.h) + g.h) % g.h, size = s.r * (0.6 + s.z);
-          ctx.globalAlpha = 0.16 + 0.18 * s.z;
+          ctx.globalAlpha = (0.16 + 0.18 * s.z) * A.pal.plankton;
           ctx.drawImage(A.glowSprite(s.h, 80, 55), s.x * g.w - size, y - size, size * 2, size * 2);
         }
         ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';

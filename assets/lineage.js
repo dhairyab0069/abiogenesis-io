@@ -77,6 +77,7 @@
           '<small>#' + a.c.id + ' &middot; gen ' + a.d + '</small></button></li>';
       }).join('');
     }
+    A.bus.on('theme', () => { dirty = true; });
     strip.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) select(+b.dataset.id, true); });
     ['pointerenter', 'focusin'].forEach((n) => strip.addEventListener(n, () => (hold = true)));
     ['pointerleave', 'focusout'].forEach((n) => strip.addEventListener(n, () => (hold = false)));
@@ -115,8 +116,8 @@
       nodes.forEach((n) => {
         const p = pos[n.id], t = TYPE[n.type], isSel = n.id === sel, s = n.seq.length > 9 ? n.seq.slice(0, 8) + '…' : n.seq;
         out += '<g class="node' + (isSel ? ' sel' : '') + '" data-id="' + n.id + '" tabindex="0" role="button" aria-label="Chain ' + n.id + ', ' + t[0] + ', generation ' + n.depth + ', sequence ' + esc(n.seq) + '">' +
-          '<circle class="halo" cx="' + p.x + '" cy="' + p.y + '" r="19" fill="hsl(' + t[1] + ' 85% 60% / .18)"/>' +
-          '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (isSel ? 12 : 9) + '" fill="hsl(' + t[1] + ' 85% 60%)"/>' +
+          '<circle class="halo" cx="' + p.x + '" cy="' + p.y + '" r="19" fill="hsl(' + t[1] + ' 85% ' + A.L(60) + '% / .18)"/>' +
+          '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (isSel ? 12 : 9) + '" fill="hsl(' + t[1] + ' 85% ' + A.L(60) + '%)"/>' +
           '<text x="' + p.x + '" y="' + (p.y + 27) + '" text-anchor="middle" class="lt">' + esc(s) + '</text></g>';
       });
       if (res.truncated) out += '<text x="6" y="14" class="lt dim">older history not shown</text>';

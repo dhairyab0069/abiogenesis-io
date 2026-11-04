@@ -28,7 +28,8 @@
     for (let i = 0; i < (A.prewarm || 400); i++) soup.step(0.05); // pre-warm (20 s of soup time) so the first frame has a history
     const ptr = soup.ptr;
     const sprites = {};
-    Object.keys(A.letterHue).forEach((c) => { sprites[c] = A.glowSprite(A.letterHue[c], 85, 60); });
+    const buildSprites = () => Object.keys(A.letterHue).forEach((c) => { sprites[c] = A.glowSprite(A.letterHue[c], 85, 60); });
+    buildSprites(); A.bus.on('theme', buildSprites);
     let hover = null, par = { x: 0, y: 0 }, lastHud = 0, ptrPrev = null;
 
     function local(e) {
@@ -69,8 +70,9 @@
       for (let i = 0; i < 3; i++) {
         const x = g.w * (0.5 + 0.38 * Math.sin(t * 0.045 + i * 2.1)), y = g.h * (0.5 + 0.32 * Math.cos(t * 0.037 + i * 1.7));
         const gr = ctx.createRadialGradient(x, y, 0, x, y, R);
-        gr.addColorStop(0, 'hsla(' + (hue + i * 38) + ',75%,45%,0.17)');
-        gr.addColorStop(1, 'hsla(' + (hue + i * 38) + ',75%,45%,0)');
+        const P = A.pal.glow;
+        gr.addColorStop(0, 'hsla(' + (hue + i * 38) + ',' + P[0] + '%,' + P[1] + '%,' + P[2] + ')');
+        gr.addColorStop(1, 'hsla(' + (hue + i * 38) + ',' + P[0] + '%,' + P[1] + '%,0)');
         ctx.fillStyle = gr;
         ctx.fillRect(x - R, y - R, 2 * R, 2 * R);
       }
@@ -97,11 +99,12 @@
           }
         }
       }
-      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(190,240,255,0.2)'; ctx.stroke(bonds);
-      ctx.fillStyle = 'rgba(41,221,237,0.8)'; ctx.fill(O);
-      ctx.fillStyle = 'rgba(205,245,255,0.62)'; ctx.fill(Hh);
-      ctx.fillStyle = 'rgba(132,234,123,0.78)'; ctx.fill(Cc);
-      ctx.fillStyle = 'rgba(214,255,210,0.55)'; ctx.fill(H4);
+      const P = A.pal;
+      ctx.lineWidth = 1; ctx.strokeStyle = P.bonds; ctx.stroke(bonds);
+      ctx.fillStyle = P.O; ctx.fill(O);
+      ctx.fillStyle = P.H; ctx.fill(Hh);
+      ctx.fillStyle = P.C; ctx.fill(Cc);
+      ctx.fillStyle = P.H4; ctx.fill(H4);
     }
 
     /* Pass A (additive): strings and glowing beads; computes world positions. */
@@ -131,7 +134,7 @@
         c.alpha = alpha;
         // string
         ctx.globalAlpha = alpha * 0.45;
-        ctx.strokeStyle = 'hsl(' + A.hueOfSeq(c.seq) + ' 70% 65%)'; ctx.lineWidth = 1.3;
+        ctx.strokeStyle = 'hsl(' + A.hueOfSeq(c.seq) + ' 70% ' + A.pal.stringL + '%)'; ctx.lineWidth = 1.3;
         ctx.beginPath(); ctx.moveTo(c.wp[0], c.wp[1]);
         for (let i = 1; i < n; i++) ctx.lineTo(c.wp[2 * i], c.wp[2 * i + 1]);
         ctx.stroke();
@@ -154,22 +157,22 @@
           const x = c.wp[2 * i], y = c.wp[2 * i + 1], r = c.wr[i];
           if (c.mix) {
             ctx.globalAlpha = a * c.mix.t; ctx.lineWidth = 1.6;
-            ctx.strokeStyle = 'hsl(' + (i < c.mix.cut ? c.mix.ha : c.mix.hb) + ' 95% 72%)';
+            ctx.strokeStyle = 'hsl(' + (i < c.mix.cut ? c.mix.ha : c.mix.hb) + ' 95% ' + A.pal.mixL + '%)';
             ctx.beginPath(); ctx.arc(x, y, r * (1.7 + (1 - c.mix.t) * 0.9), 0, 6.283); ctx.stroke();
           }
           for (let f = 0; f < c.flash.length; f++) {
             const fl = c.flash[f];
             if (fl.i !== i) continue;
             const p = fl.t / 1.1;
-            ctx.globalAlpha = (1 - p) * 0.95; ctx.fillStyle = '#fff';
+            ctx.globalAlpha = (1 - p) * 0.95; ctx.fillStyle = A.pal.flash;
             if (fl.kind === 'sub') { ctx.beginPath(); ctx.arc(x, y, r * 1.05, 0, 6.283); ctx.fill(); }
-            ctx.strokeStyle = fl.kind === 'del' ? '#ff9ad8' : '#fff'; ctx.lineWidth = 1.5;
+            ctx.strokeStyle = fl.kind === 'del' ? A.pal.del : A.pal.flash; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.arc(x, y, r * (1.3 + 2.4 * ease(p)), 0, 6.283); ctx.stroke();
           }
           const lens = ptr.on ? 1 - Math.hypot(x - ptr.x, y - ptr.y) / LENS : 0;
           if (c === hover || c.lt > 0 || lens > 0.3) {
             ctx.globalAlpha = a * (c === hover || c.lt > 0 ? 1 : (lens - 0.3) / 0.7);
-            ctx.fillStyle = '#04141a';
+            ctx.fillStyle = A.pal.letter;
             ctx.font = '700 ' + Math.max(7, Math.round(r * 1.55)) + 'px "Avenir Next", ui-rounded, system-ui, sans-serif';
             ctx.fillText(c.seq[i], x, y + 0.5);
           }
@@ -181,9 +184,9 @@
         const txt = '#' + c.id + '  gen ' + (e ? e.depth : '?') + '  ' + (c.seq.length > 26 ? c.seq.slice(0, 25) + '…' : c.seq);
         ctx.font = FONT;
         const tw = ctx.measureText(txt).width + 16, tx = A.clamp(c.x, tw / 2 + 4, g.w - tw / 2 - 4), ty = Math.max(16, top - 16);
-        ctx.fillStyle = 'rgba(4,22,28,0.78)';
+        ctx.fillStyle = A.pal.tag;
         ctx.beginPath(); ctx.roundRect ? ctx.roundRect(tx - tw / 2, ty - 10, tw, 20, 10) : ctx.rect(tx - tw / 2, ty - 10, tw, 20); ctx.fill();
-        ctx.fillStyle = '#d6fbff'; ctx.fillText(txt, tx, ty + 0.5);
+        ctx.fillStyle = A.pal.tagInk; ctx.fillText(txt, tx, ty + 0.5);
       }
     }
 
@@ -194,7 +197,7 @@
         ctx.globalAlpha = (1 - p) * 0.55;
         let s = rad * 2.6; ctx.drawImage(spr(r.ha, 85, 60), r.x - s / 2 - rad * 0.2, r.y - s / 2, s, s);
         ctx.drawImage(spr(r.hb, 85, 60), r.x - s / 2 + rad * 0.2, r.y - s / 2, s, s); // two colours mixing
-        ctx.globalAlpha = (1 - p) * 0.7; ctx.lineWidth = 1.5; ctx.strokeStyle = 'hsl(' + r.ha + ' 90% 75%)';
+        ctx.globalAlpha = (1 - p) * 0.7; ctx.lineWidth = 1.5; ctx.strokeStyle = 'hsl(' + r.ha + ' 90% ' + A.pal.ringL + '%)';
         ctx.beginPath(); ctx.arc(r.x, r.y, rad, 0, 6.283); ctx.stroke();
       }
       for (const gh of f.ghosts) {
@@ -210,20 +213,20 @@
       for (const b of f.bolts) {
         const p = b.t / 0.7, fl = Math.random() < 0.25 ? 0.4 : 1;
         ctx.lineJoin = 'round';
-        [[9, 0.10, '#29dded'], [3.5, 0.4, '#bff8ff'], [1.3, 1, '#ffffff']].forEach((s) => {
+        [[9, 0.10, A.pal.bolt[0]], [3.5, 0.4, A.pal.bolt[1]], [1.3, 1, A.pal.bolt[2]]].forEach((s) => {
           ctx.globalAlpha = s[1] * (1 - p) * fl; ctx.lineWidth = s[0]; ctx.strokeStyle = s[2];
           ctx.beginPath(); ctx.moveTo(b.pts[0][0], b.pts[0][1]);
           for (let i = 1; i < b.pts.length; i++) ctx.lineTo(b.pts[i][0], b.pts[i][1]);
           ctx.stroke();
         });
       }
-      if (f.flash > 0) { ctx.globalAlpha = f.flash * 0.1; ctx.fillStyle = '#cfefff'; ctx.fillRect(0, 0, g.w, g.h); }
+      if (f.flash > 0) { ctx.globalAlpha = f.flash * A.pal.screenA; ctx.fillStyle = A.pal.screen; ctx.fillRect(0, 0, g.w, g.h); }
       ctx.globalAlpha = 1;
       if (ptr.on) { // cursor halo; swirling arcs while a current is being stirred
         const s = 150 + 10 * Math.sin(t * 3); ctx.globalAlpha = 0.28;
         ctx.drawImage(spr(190, 85, 60), ptr.x - s / 2, ptr.y - s / 2, s, s);
         if (ptr.down && ptr.held > 0.25) {
-          ctx.globalAlpha = 0.5; ctx.strokeStyle = '#84ea7b'; ctx.lineWidth = 1.5;
+          ctx.globalAlpha = 0.5; ctx.strokeStyle = A.pal.stir; ctx.lineWidth = 1.5;
           for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(ptr.x, ptr.y, 40 + i * 28, t * 2 + i * 2, t * 2 + i * 2 + 2); ctx.stroke(); }
         }
         ctx.globalAlpha = 1;
@@ -255,7 +258,7 @@
         ctx.clearRect(0, 0, g.w, g.h);
         glow(ctx, t);
         molecules(ctx);
-        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalCompositeOperation = A.pal.blend;
         chainsGlow(ctx);
         effects(ctx, t);
         ctx.globalCompositeOperation = 'source-over';

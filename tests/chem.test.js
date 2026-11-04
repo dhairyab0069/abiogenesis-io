@@ -109,3 +109,12 @@ soup.plant(600, 300);
 assert(soup.chains.some((ch) => ch.seq === 'METHINKS' && ch.planted));
 assert.strictEqual(soup.counts.sight, 0, 'planting is not emergence');
 console.log('soup: ' + JSON.stringify(soup.counts) + ', alive ' + soup.chains.length + ', max depth ' + soup.depth + ', log ' + soup.log.map.size);
+
+// Shared light / dark / auto theme: the key, an early inline script before the stylesheet, and the radiogroup exist.
+{
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8');
+  const early = html.indexOf("localStorage.getItem('theme')");
+  assert.ok(early > 0 && early < html.indexOf('rel="stylesheet"'), 'early theme script must precede the stylesheet');
+  assert.ok(html.includes('role="radiogroup" aria-label="Color theme"'));
+  assert.strictEqual((html.match(/data-mode="(light|dark|auto)"/g) || []).length, 3);
+}
